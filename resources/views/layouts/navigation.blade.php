@@ -20,6 +20,29 @@
                         <span class="ml-2 text-sm tracking-wide truncate">Dashboard</span>
                     </a>
                 </li>
+
+                <li>
+    <a href="{{ route('services.create') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-indigo-500 pr-6">
+        <span class="inline-flex justify-center items-center ml-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5v14l11-7z"></path>
+            </svg>
+        </span>
+        <span class="ml-2 text-sm tracking-wide truncate">Criar Serviço</span>
+    </a>
+</li>
+<li>
+    <a href="{{ route('services.index') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-indigo-500 pr-6">
+        <span class="inline-flex justify-center items-center ml-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553 2.276A1 1 0 0120 13.132v.736a1 1 0 01-.447.856L15 17M15 10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v6M15 10l-4.553 2.276A1 1 0 019 13.132v.736a1 1 0 00.447.856L15 17"></path>
+            </svg>
+        </span>
+        <span class="ml-2 text-sm tracking-wide truncate">Ver Serviços</span>
+    </a>
+</li>
+
+
                 
                 <!-- Botões com ícones e estilo semelhante aos outros -->
                 <li>
@@ -32,6 +55,7 @@
                         <span class="ml-2 text-sm tracking-wide truncate">Cadastrar Horário de Almoço</span>
                     </a>
                 </li>
+                
 
                 <li>
                     <a href="{{ route('schedules.create') }}" class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-indigo-500 pr-6">

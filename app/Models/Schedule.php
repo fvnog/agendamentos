@@ -8,7 +8,14 @@ use Carbon\Carbon;
 class Schedule extends Model
 {
     protected $fillable = [
-        'user_id', 'date', 'start_time', 'end_time', 'lunch_start', 'lunch_end', 'is_lunch_break'
+        'client_id',
+        'user_id', // Identificador do barbeiro
+        'date',
+        'start_time',
+        'end_time',
+        'is_booked',
+        'services',
+        'client_id'
     ];
 
     // Verifica se o horário está durante o intervalo de almoço
@@ -23,4 +30,28 @@ class Schedule extends Model
         return ($start_time >= $lunch_start && $start_time < $lunch_end) ||
                ($end_time > $lunch_start && $end_time <= $lunch_end);
     }
+
+       // Relacionamento com o cliente
+       public function client()
+       {
+           return $this->belongsTo(User::class, 'client_id');
+       }
+   
+       // Relacionamento com o barbeiro
+       public function barber()
+       {
+           return $this->belongsTo(User::class, 'user_id');
+       }
+   
+       // Acessar os serviços como array
+       public function getServicesAttribute($value)
+       {
+           return json_decode($value, true);
+       }
+   
+       public function setServicesAttribute($value)
+       {
+           $this->attributes['services'] = json_encode($value);
+       }
+       
 }
