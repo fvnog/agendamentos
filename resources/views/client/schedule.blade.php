@@ -58,7 +58,7 @@
 <div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
     <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
         <h2 class="text-xl font-semibold mb-4">Reservar Horário</h2>
-        <form method="POST" action="{{ route('client.schedule.store') }}">
+        <form method="POST" action="{{ route('client.payment.create') }}">
             @csrf
             <input type="hidden" name="schedule_id" id="modal-schedule-id">
             <input type="hidden" name="start_time" id="modal-start-time">
@@ -106,11 +106,11 @@
                     Cancelar
                 </button>
                 <button type="submit" 
-        id="confirm-button" 
-        class="px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed" 
-        disabled>
-    Confirmar
+    id="confirm-button" 
+    class="px-4 py-2 bg-blue-500 text-white rounded-lg">
+    Confirmar e Gerar Pix
 </button>
+
 
             </div>
         </form>

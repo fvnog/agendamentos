@@ -10,6 +10,18 @@ use App\Http\Controllers\UserSchedulesController;
 use App\Http\Controllers\ClientScheduleController;
 use App\Http\Controllers\ServiceController;
 
+use App\Http\Controllers\PixPaymentController;
+
+// Rota para exibir o formulário de pagamento
+Route::post('/payment', [PixPaymentController::class, 'createPayment'])->name('client.payment.create');
+
+// Rota para verificar o status do pagamento
+Route::get('/payment/status/{txid}', [PixPaymentController::class, 'checkPaymentStatus'])->name('client.pix.checkPayment');
+Route::get('/payment/{txid}', [PixPaymentController::class, 'checkPaymentStatus'])->name('client.payment.checkStatus');
+
+
+
+
 Route::get('/', [UserSchedulesController::class, 'index'])->name('welcome');
 
 Route::get('/dashboard', function () {
@@ -42,8 +54,5 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/agendar', [ClientScheduleController::class, 'index'])->name('client.schedule.index');
 Route::post('/agendar', [ClientScheduleController::class, 'store'])->name('client.schedule.store');
-Route::get('/payment/check', action: [PaymentController::class, 'checkPayment'])->name('payment.check');
-
-Route::get('/payments/qrcode', [PaymentController::class, 'show'])->name('payments.qrcode');
 
 require __DIR__.'/auth.php';
