@@ -166,6 +166,79 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+$(document).ready(function () {
+    let scheduleId = $('#schedule-id').val(); // ID do agendamento
+    let inactivityTimer;
+    let timeLimit = 300000; // 5 minutos (300000ms)
+    let isBlocked = false; // Controle de bloqueio
+
+    // 🔹 Função para bloquear o horário assim que o usuário entra na página
+    function bloquearHorario() {
+        if (scheduleId) {
+            console.log("🔒 Bloqueando horário...");
+            $.post('/lock-schedule', { schedule_id: scheduleId, _token: "{{ csrf_token() }}" }, function (response) {
+                console.log(response.message);
+            });
+        }
+    }
+
+    // 🔹 Função para liberar o horário via AJAX
+    function liberarHorario() {
+        if (scheduleId && !isBlocked) {
+            console.log("⏳ Usuário inativo! Liberando horário...");
+
+            $.post('/unlock-schedule', { schedule_id: scheduleId, _token: "{{ csrf_token() }}" }, function (response) {
+                console.log(response.message);
+                isBlocked = true; // Marcar como bloqueado
+                exibirModal(); // Exibir modal impedindo ação do usuário
+            });
+        }
+    }
+
+    // 🔹 Detectar quando o usuário muda de aba ou fica inativo
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+            console.log("🛑 Usuário saiu da aba. Contagem regressiva iniciada...");
+            inactivityTimer = setTimeout(liberarHorario, timeLimit);
+        } else {
+            console.log("✅ Usuário voltou. Cancelando liberação.");
+            clearTimeout(inactivityTimer);
+        }
+    });
+
+    // 🔹 Detectar se o usuário saiu da página
+    window.addEventListener("beforeunload", function () {
+        liberarHorario();
+    });
+
+    // 🔹 Bloquear o horário assim que o usuário entrar na página
+    bloquearHorario();
+
+    // 🔹 Exibir modal quando o horário for liberado
+    function exibirModal() {
+        $("#modal-bloqueio").removeClass("hidden").addClass("flex");
+    }
+
+    // 🔹 Evento do botão para voltar ao início
+    $("#btn-voltar-inicio").on("click", function () {
+        window.location.href = "/"; // Redireciona para a home ou para onde desejar
+    });
+});
+</script>
+
+
+<!-- Modal de Bloqueio -->
+<div id="modal-bloqueio" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <h2 class="text-2xl font-bold text-red-600">⚠️ Tempo Expirado!</h2>
+        <p class="text-gray-700 mt-3">Seu horário foi liberado devido à inatividade.</p>
+        <button id="btn-voltar-inicio" class="mt-5 px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            Voltar ao Início
+        </button>
+    </div>
+</div>
+
 <!-- Modal de Sucesso -->
 <div id="success-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center">
     <div class="bg-white rounded-lg shadow-xl p-6 text-center">

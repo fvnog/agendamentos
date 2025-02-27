@@ -254,4 +254,49 @@ public function verificarPagamento(Request $request)
 }
 
 
+public function lockSchedule(Request $request)
+{
+    $scheduleId = $request->schedule_id;
+
+    if (!$scheduleId) {
+        return response()->json(['success' => false, 'message' => 'ID do agendamento não informado.']);
+    }
+
+    $schedule = Schedule::find($scheduleId);
+
+    if (!$schedule || $schedule->is_booked) {
+        return response()->json(['success' => false, 'message' => 'Horário já foi reservado ou não existe.']);
+    }
+
+    $schedule->update([
+        'is_locked' => 1,
+        'locked_until' => now()->addMinutes(10) // Define um tempo de bloqueio maior
+    ]);
+
+    return response()->json(['success' => true, 'message' => 'Horário bloqueado com sucesso.']);
+}
+
+public function unlockSchedule(Request $request)
+{
+    $scheduleId = $request->schedule_id;
+
+    if (!$scheduleId) {
+        return response()->json(['success' => false, 'message' => 'ID do agendamento não informado.']);
+    }
+
+    $schedule = Schedule::find($scheduleId);
+
+    if (!$schedule || $schedule->is_booked) {
+        return response()->json(['success' => false, 'message' => 'Horário já foi reservado ou não existe.']);
+    }
+
+    $schedule->update([
+        'is_locked' => 0,
+        'locked_until' => null
+    ]);
+
+    return response()->json(['success' => true, 'message' => 'Horário liberado com sucesso.']);
+}
+
+
 }

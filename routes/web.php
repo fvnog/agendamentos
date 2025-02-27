@@ -15,6 +15,9 @@ use App\Http\Controllers\PixPaymentController;
 Route::get('/verificar-pagamento', [PixPaymentController::class, 'verificarPagamento']);
 Route::post('/gerar-pix', [PixPaymentController::class, 'createPayment'])->name('gerar.pix');
 
+Route::post('/lock-schedule', [PixPaymentController::class, 'lockSchedule']);
+Route::post('/unlock-schedule', [PixPaymentController::class, 'unlockSchedule']);
+
 
 Route::get('/', [UserSchedulesController::class, 'index'])->name('welcome');
 

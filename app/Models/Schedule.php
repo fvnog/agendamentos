@@ -9,14 +9,15 @@ class Schedule extends Model
 {
     protected $fillable = [
         'client_id',
-        'user_id', // Identificador do barbeiro
+        'user_id',
         'date',
         'start_time',
         'end_time',
         'is_booked',
-        'services',
-        'client_id'
+        'is_locked', // 🔹 Nova coluna
+        'services'
     ];
+    
 
     // Verifica se o horário está durante o intervalo de almoço
     public static function isDuringLunchBreak($start_time, $end_time, $lunch_start, $lunch_end)
