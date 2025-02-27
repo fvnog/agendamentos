@@ -12,14 +12,8 @@ use App\Http\Controllers\ServiceController;
 
 use App\Http\Controllers\PixPaymentController;
 
-// Rota para exibir o formulário de pagamento
-Route::post('/payment', [PixPaymentController::class, 'createPayment'])->name(name: 'client.payment.create');
-
-// Rota para verificar o status do pagamento
-Route::get('/payment/status/{txid}', [PixPaymentController::class, 'checkPaymentStatus'])->name('client.pix.checkPayment');
-Route::get('/payment/{txid}', [PixPaymentController::class, 'checkPaymentStatus'])->name('client.payment.checkStatus');
-
-
+Route::get('/verificar-pagamento', [PixPaymentController::class, 'verificarPagamento']);
+Route::post('/gerar-pix', [PixPaymentController::class, 'createPayment'])->name('gerar.pix');
 
 
 Route::get('/', [UserSchedulesController::class, 'index'])->name('welcome');

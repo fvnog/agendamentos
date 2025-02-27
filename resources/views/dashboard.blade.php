@@ -41,11 +41,7 @@
                                 View All Appointments
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('payments.index') }}" class="text-indigo-600 hover:underline">
-                                Manage Payments
-                            </a>
-                        </li>
+
                         <li>
                             <a href="{{ route('users.index') }}" class="text-indigo-600 hover:underline">
                                 Manage Users
