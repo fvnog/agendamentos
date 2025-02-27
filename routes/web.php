@@ -13,7 +13,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\PixPaymentController;
 
 // Rota para exibir o formulário de pagamento
-Route::post('/payment', [PixPaymentController::class, 'createPayment'])->name('client.payment.create');
+Route::post('/payment', [PixPaymentController::class, 'createPayment'])->name(name: 'client.payment.create');
 
 // Rota para verificar o status do pagamento
 Route::get('/payment/status/{txid}', [PixPaymentController::class, 'checkPaymentStatus'])->name('client.pix.checkPayment');
@@ -34,7 +34,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('appointments', AppointmentController::class);
-    Route::resource('payments', PaymentController::class);
     Route::resource('users', UserController::class);
 
     Route::get('/schedules/create', [ScheduleController::class, 'create'])->name('schedules.create');
@@ -54,5 +53,9 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/agendar', [ClientScheduleController::class, 'index'])->name('client.schedule.index');
 Route::post('/agendar', [ClientScheduleController::class, 'store'])->name('client.schedule.store');
+// routes/web.php
+
+Route::get('/pagamentos/{scheduleId}', [PaymentController::class, 'showPaymentPage'])->name('client.payment');
+Route::post('/payment', [PaymentController::class, 'showPaymentPage'])->name('client.payment.showPaymentPage');
 
 require __DIR__.'/auth.php';

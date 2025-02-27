@@ -53,12 +53,11 @@
         @endif
     </div>
 
-    <!-- Modal de Reservar -->
-<!-- Modal de Reservar -->
+   <!-- Modal de Reservar -->
 <div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
     <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
         <h2 class="text-xl font-semibold mb-4">Reservar Horário</h2>
-        <form method="POST" action="{{ route('client.payment.create') }}">
+        <form method="POST" action="{{ route('client.payment.showPaymentPage') }}">
             @csrf
             <input type="hidden" name="schedule_id" id="modal-schedule-id">
             <input type="hidden" name="start_time" id="modal-start-time">
@@ -78,27 +77,26 @@
             <div class="mb-4">
                 <label class="block text-gray-700">Escolha os serviços:</label>
                 <div id="services-container">
-    @foreach($services as $service)
-        <div class="flex items-center gap-2 mb-2">
-            <input 
-                type="checkbox" 
-                name="services[]" 
-                id="service-{{ $service->id }}" 
-                value="{{ $service->id }}" 
-                data-duration="{{ $service->duration }}" 
-                data-price="{{ $service->price }}" 
-                class="service-checkbox">
-            <label for="service-{{ $service->id }}">
-                {{ $service->name }} ({{ $service->duration }} min) - R$ {{ number_format($service->price, 2, ',', '.') }}
-            </label>
-        </div>
-    @endforeach
-</div>
-<p class="mt-2 text-sm text-gray-700">
-    <strong>Total do Serviço:</strong> R$ <span id="total-price">0,00</span>
-</p>
-<p id="time-warning" class="text-red-500 hidden mt-2">O tempo total dos serviços selecionados ultrapassa o limite do horário disponível.</p>
-
+                    @foreach($services as $service)
+                        <div class="flex items-center gap-2 mb-2">
+                            <input 
+                                type="checkbox" 
+                                name="services[]" 
+                                id="service-{{ $service->id }}" 
+                                value="{{ $service->id }}" 
+                                data-duration="{{ $service->duration }}" 
+                                data-price="{{ $service->price }}" 
+                                class="service-checkbox">
+                            <label for="service-{{ $service->id }}">
+                                {{ $service->name }} ({{ $service->duration }} min) - R$ {{ number_format($service->price, 2, ',', '.') }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+                <p class="mt-2 text-sm text-gray-700">
+                    <strong>Total do Serviço:</strong> R$ <span id="total-price">0,00</span>
+                </p>
+                <p id="time-warning" class="text-red-500 hidden mt-2">O tempo total dos serviços selecionados ultrapassa o limite do horário disponível.</p>
             </div>
 
             <div class="flex justify-end gap-4">
@@ -106,17 +104,14 @@
                     Cancelar
                 </button>
                 <button type="submit" 
-    id="confirm-button" 
-    class="px-4 py-2 bg-blue-500 text-white rounded-lg">
-    Confirmar e Gerar Pix
-</button>
-
-
+                    id="confirm-button" 
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg">
+                    Confirmar e Gerar Pix
+                </button>
             </div>
         </form>
     </div>
 </div>
-
 
     <!-- Modal de Login -->
     <div id="login-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
@@ -145,71 +140,65 @@
     </div>
 
     <script>
-   document.addEventListener('DOMContentLoaded', () => {
-    const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
-    const totalPriceElement = document.getElementById('total-price');
-    const warningMessage = document.getElementById('time-warning');
-    const confirmButton = document.getElementById('confirm-button');
+        document.addEventListener('DOMContentLoaded', () => {
+            const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
+            const totalPriceElement = document.getElementById('total-price');
+            const warningMessage = document.getElementById('time-warning');
+            const confirmButton = document.getElementById('confirm-button');
 
-    function calculateTotals() {
-        let totalDuration = 0;
-        let totalPrice = 0;
-        let hasCheckedServices = false;
+            function calculateTotals() {
+                let totalDuration = 0;
+                let totalPrice = 0;
+                let hasCheckedServices = false;
 
-        serviceCheckboxes.forEach(checkbox => {
-            if (checkbox.checked) {
-                hasCheckedServices = true;
-                totalDuration += parseInt(checkbox.getAttribute('data-duration'));
-                totalPrice += parseFloat(checkbox.getAttribute('data-price'));
+                serviceCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        hasCheckedServices = true;
+                        totalDuration += parseInt(checkbox.getAttribute('data-duration'));
+                        totalPrice += parseFloat(checkbox.getAttribute('data-price'));
+                    }
+                });
+
+                const startTime = document.getElementById('modal-start-time').value;
+                const endTime = document.getElementById('modal-end-time').value;
+
+                const availableTime = calculateTimeDifference(startTime, endTime);
+
+                // Atualiza o preço total no HTML
+                totalPriceElement.textContent = totalPrice.toFixed(2).replace('.', ',');
+
+                // Verifica se o tempo total excede o limite
+                if (totalDuration > availableTime || !hasCheckedServices) {
+                    warningMessage.classList.remove('hidden');
+                    confirmButton.disabled = true;
+                    confirmButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    confirmButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+                } else {
+                    warningMessage.classList.add('hidden');
+                    confirmButton.disabled = false;
+                    confirmButton.classList.add('bg-green-500', 'hover:bg-green-600');
+                    confirmButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                }
             }
+
+            function calculateTimeDifference(startTime, endTime) {
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                const [endHour, endMinute] = endTime.split(':').map(Number);
+
+                const start = new Date();
+                start.setHours(startHour, startMinute);
+
+                const end = new Date();
+                end.setHours(endHour, endMinute);
+
+                return (end - start) / 60000; // Diferença em minutos
+            }
+
+            serviceCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', calculateTotals);
+            });
         });
 
-        const startTime = document.getElementById('modal-start-time').value;
-        const endTime = document.getElementById('modal-end-time').value;
-
-        const availableTime = calculateTimeDifference(startTime, endTime);
-
-        // Atualiza o preço total no HTML
-        totalPriceElement.textContent = totalPrice.toFixed(2).replace('.', ',');
-
-        // Verifica se o tempo total excede o limite
-        if (totalDuration > availableTime || !hasCheckedServices) {
-            warningMessage.classList.remove('hidden');
-            confirmButton.disabled = true;
-            confirmButton.classList.remove('bg-green-500', 'hover:bg-green-600');
-            confirmButton.classList.add('bg-gray-400', 'cursor-not-allowed');
-        } else {
-            warningMessage.classList.add('hidden');
-            confirmButton.disabled = false;
-            confirmButton.classList.add('bg-green-500', 'hover:bg-green-600');
-            confirmButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
-        }
-    }
-
-    function calculateTimeDifference(startTime, endTime) {
-        const [startHour, startMinute] = startTime.split(':').map(Number);
-        const [endHour, endMinute] = endTime.split(':').map(Number);
-
-        const start = new Date();
-        start.setHours(startHour, startMinute);
-
-        const end = new Date();
-        end.setHours(endHour, endMinute);
-
-        return (end - start) / 60000; // Diferença em minutos
-    }
-
-    serviceCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', calculateTotals);
-    });
-});
-
-</script>
-
-
-
-
-    <script>
         function openModal(scheduleId, startTime, endTime) {
             document.getElementById('modal-schedule-id').value = scheduleId;
             document.getElementById('modal-start-time').value = startTime;
