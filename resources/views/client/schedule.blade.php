@@ -1,60 +1,183 @@
 <x-layouts.client>
-    <div class="bg-white p-6 rounded-lg shadow-md">
-        <!-- Filtro por data -->
-        <form method="GET" action="{{ route('client.schedule.index') }}" class="mb-6">
-            <label for="date" class="block text-gray-700 font-medium mb-2">Escolha uma data:</label>
-            <div class="flex items-center gap-4">
-                <input 
-                    type="date" 
-                    id="date" 
-                    name="date" 
-                    value="{{ $filterDate }}" 
-                    class="rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                <button 
-                    type="submit" 
-                    class="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600">
-                    Filtrar
-                </button>
-            </div>
-        </form>
 
-        <!-- Exibe mensagem caso não haja horários -->
-        @if($schedules->isEmpty())
-            <p class="text-gray-600">Nenhum horário disponível para a data selecionada.</p>
-        @else
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                @foreach($schedules as $schedule)
-                    <div class="bg-blue-100 p-4 rounded-lg shadow-md">
-                        <div class="font-semibold text-xl text-gray-800">
-                            {{ \Carbon\Carbon::parse($schedule->date)->format('d/m/Y') }}
-                        </div>
-                        <div class="mt-2 text-sm text-gray-600">
-                            <p><strong>Início:</strong> {{ $schedule->start_time }}</p>
-                            <p><strong>Fim:</strong> {{ $schedule->end_time }}</p>
-                        </div>
-                        @if(auth()->check())
-                            <!-- Botão para abrir o modal -->
-                            <button 
-                                onclick="openModal({{ $schedule->id }}, '{{ $schedule->start_time }}', '{{ $schedule->end_time }}')"
-                                class="mt-4 px-4 py-2 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600">
-                                Reservar
-                            </button>
-                        @else
-                            <!-- Botão para abrir o modal de login -->
-                            <button 
-                                onclick="openLoginModal()"
-                                class="mt-4 px-4 py-2 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600">
-                                Reservar
-                            </button>
-                        @endif
+    <div class="flex flex-col items-center justify-center min-h-screen bg-cover bg-center px-6 sm:px-12" style="background-image: url('{{ asset('storage/img/bg.png') }}');">
+        
+        <!-- Logo -->
+        <img src="{{ asset('storage/img/gs2.png') }}" alt="GS Barbearia" class="w-64 sm:w-80 md:w-96 mb-8 drop-shadow-lg">
+
+        <!-- Título -->
+        <h1 class="text-white text-center text-4xl sm:text-5xl font-bold leading-tight drop-shadow-md">
+            GS Barbearia: Estilo e Tradição para o Homem Moderno
+        </h1>
+
+        <!-- Descrição -->
+        <p class="text-white text-lg sm:text-xl max-w-4xl text-center mt-6 leading-relaxed drop-shadow-md">
+            Na GS Barbearia, cada corte é uma obra de arte, onde tradição e inovação se unem para um estilo impecável. 
+            Nossos barbeiros são especialistas em transformar seu visual. Venha viver essa experiência única! ✂️🔥
+        </p>
+
+        <!-- Seção de Serviços Disponíveis -->
+        <div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">💈 Serviços Disponíveis</h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                @foreach($services as $service)
+                    <div class="bg-gray-100 p-5 rounded-lg shadow-md text-center">
+                        <h3 class="text-xl font-semibold text-gray-800">{{ $service->name }}</h3>
+                        <p class="text-gray-600 mt-2">🕒 {{ $service->duration }} min</p>
+                        <p class="text-green-600 font-bold text-lg mt-2"> R$ {{ number_format($service->price, 2, ',', '.') }}</p>
                     </div>
                 @endforeach
             </div>
-        @endif
+        </div>
+
+
+        <div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
+
+       <!-- Filtros -->
+<div class="flex gap-4 mb-6">
+    <div>
+        <label for="date" class="block text-gray-700 font-semibold mb-1">Escolha uma data:</label>
+        <input 
+            type="date" 
+            id="date" 
+            name="date" 
+            value="{{ now()->toDateString() }}" 
+            class="rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
     </div>
 
-   <!-- Modal de Reservar -->
-<div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+    <div>
+        <label for="barber" class="block text-gray-700 font-semibold mb-1">Escolha um barbeiro:</label>
+        <select id="barber" name="barber" class="rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
+            <option value="">Todos</option>
+            @foreach($barbers as $barber)
+                <option value="{{ $barber->id }}">{{ $barber->name }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <button 
+        id="filter-btn" 
+        class="self-end px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300">
+        Filtrar 📅
+    </button>
+</div>
+
+<!-- Lista de Horários Disponíveis -->
+<div id="schedule-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <!-- Horários serão carregados aqui via AJAX -->
+</div>
+
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    let lastLoadedData = null; // Armazena os dados carregados para evitar chamadas desnecessárias
+    let loggedUserId = "{{ auth()->check() ? auth()->user()->id : null }}"; // ID do usuário logado
+
+    function loadSchedules() {
+        let selectedDate = $("#date").val();
+        let selectedBarber = $("#barber").val();
+
+        $.ajax({
+            url: "{{ route('schedules.get') }}",
+            type: "GET",
+            data: { date: selectedDate, barber_id: selectedBarber },
+            success: function (response) {
+                // Se os dados carregados são os mesmos, evita nova renderização
+                if (JSON.stringify(response) === JSON.stringify(lastLoadedData)) {
+                    console.log("🔄 Dados não mudaram, evitando recarga desnecessária.");
+                    return;
+                }
+                
+                lastLoadedData = response; // Atualiza o cache
+
+                let scheduleContainer = $("#schedule-container");
+                scheduleContainer.empty();
+
+                if (response.length === 0) {
+                    scheduleContainer.html('<p class="text-gray-600 text-center text-lg">Nenhum horário disponível para a data selecionada. ⏳</p>');
+                } else {
+                    response.forEach(schedule => {
+                        let startTime = schedule.start_time.substring(0, 5);
+                        let endTime = schedule.end_time.substring(0, 5);
+                        let isLocked = schedule.is_locked;
+                        let isBooked = schedule.is_booked;
+                        let isMySchedule = (schedule.client_id == loggedUserId);
+
+                        console.log(`🔎 Horário ${schedule.id}:`, {
+                            startTime, endTime, isLocked, isBooked, clientId: schedule.client_id, isMySchedule
+                        });
+
+                        let buttonHtml = "";
+
+                        if (isMySchedule) {
+                            buttonHtml = `<button class="mt-4 w-full px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg cursor-not-allowed">
+                                Meu Horário 🏆
+                            </button>`;
+                        } else if (isBooked) {
+                            buttonHtml = `<button class="mt-4 w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg cursor-not-allowed">
+                                Horário Reservado ✅
+                            </button>`;
+                        } else if (isLocked) {
+                            buttonHtml = `<button class="mt-4 w-full px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg cursor-not-allowed opacity-75">
+                                Horário sendo reservado ⏳
+                            </button>`;
+                        } else if (loggedUserId) {
+                            buttonHtml = `<button onclick="openModal(${schedule.id}, '${startTime}', '${endTime}')" 
+                                class="mt-4 w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300">
+                                Reservar ✂️
+                            </button>`;
+                        } else {
+                            buttonHtml = `<button onclick="openLoginModal()"
+                                class="mt-4 w-full px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300">
+                                Faça login para Reservar 
+                            </button>`;
+                        }
+
+                        let scheduleCard = `
+                            <div class="bg-white p-5 rounded-lg shadow-md text-center border border-gray-200">
+                                <h3 class="text-xl font-bold text-gray-900">
+                                    ${new Date(schedule.date).toLocaleDateString('pt-BR')}
+                                </h3>
+                                <p class="text-gray-700 mt-2"><strong>Início:</strong> ${startTime}</p>
+                                <p class="text-gray-700"><strong>Fim:</strong> ${endTime}</p>
+                                ${buttonHtml}
+                            </div>
+                        `;
+
+                        scheduleContainer.append(scheduleCard);
+                    });
+                }
+            },
+            error: function () {
+                console.error("❌ Erro ao carregar horários.");
+            }
+        });
+    }
+
+    // 🔄 Atualiza os horários apenas quando houver mudança
+    $("#filter-btn").on("click", function () {
+        loadSchedules();
+    });
+
+    // 🔄 Atualiza apenas quando mudar a data ou barbeiro
+    $("#date, #barber").on("change", function () {
+        loadSchedules();
+    });
+
+    // 🚀 Carrega os horários iniciais
+    loadSchedules();
+});
+</script>
+
+
+
+    </div>
+
+  <!-- Modal de Reservar -->
+  <div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
     <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
         <h2 class="text-xl font-semibold mb-4">Reservar Horário</h2>
         <form method="POST" action="{{ route('client.payment.showPaymentPage') }}">
@@ -105,42 +228,16 @@
                 </button>
                 <button type="submit" 
                     id="confirm-button" 
-                    class="px-4 py-2 bg-blue-500 text-white rounded-lg">
-                    Confirmar e Gerar Pix
+                    class="px-4 py-2 bg-green-700 text-white rounded-lg">
+                    Confirmar
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-    <!-- Modal de Login -->
-    <div id="login-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 class="text-xl font-semibold mb-4">Faça login para continuar</h2>
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700">Email:</label>
-                    <input type="email" name="email" id="email" class="w-full rounded-md border-gray-300 shadow-sm">
-                </div>
-                <div class="mb-4">
-                    <label for="password" class="block text-gray-700">Senha:</label>
-                    <input type="password" name="password" id="password" class="w-full rounded-md border-gray-300 shadow-sm">
-                </div>
-                <div class="flex justify-end gap-4">
-                    <button type="button" onclick="closeLoginModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg">
-                        Entrar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+         document.addEventListener('DOMContentLoaded', () => {
             const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
             const totalPriceElement = document.getElementById('total-price');
             const warningMessage = document.getElementById('time-warning');
@@ -218,4 +315,5 @@
             document.getElementById('login-modal').classList.add('hidden');
         }
     </script>
+
 </x-layouts.client>

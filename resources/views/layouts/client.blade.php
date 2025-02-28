@@ -9,23 +9,12 @@
     <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body class="bg-gray-100">
+<body class="bg-black bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('storage/img/bg.png') }}');">
     <div class="min-h-screen flex flex-col">
-        <header class="bg-blue-500 text-white py-4 shadow-md">
-            <div class="container mx-auto px-4">
-                <h1 class="text-xl font-semibold">Agendar Horários</h1>
-            </div>
-        </header>
-
         <main class="flex-grow container mx-auto px-4 py-8">
             {{ $slot }}
         </main>
-
-        <footer class="bg-gray-800 text-white py-4 mt-8">
-            <div class="container mx-auto px-4 text-center">
-                <p>&copy; {{ date('Y') }} - Todos os direitos reservados.</p>
-            </div>
-        </footer>
     </div>
 </body>
+
 </html>

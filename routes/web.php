@@ -9,7 +9,7 @@ use App\Http\Controllers\LunchBreakController;
 use App\Http\Controllers\UserSchedulesController;
 use App\Http\Controllers\ClientScheduleController;
 use App\Http\Controllers\ServiceController;
-
+use App\Http\Controllers\StripeController;
 use App\Http\Controllers\PixPaymentController;
 
 Route::get('/verificar-pagamento', [PixPaymentController::class, 'verificarPagamento']);
@@ -17,6 +17,8 @@ Route::post('/gerar-pix', [PixPaymentController::class, 'createPayment'])->name(
 
 Route::post('/lock-schedule', [PixPaymentController::class, 'lockSchedule']);
 Route::post('/unlock-schedule', [PixPaymentController::class, 'unlockSchedule']);
+Route::post('/checkout-cartao', [StripeController::class, 'checkout'])->name('checkout.cartao');
+
 
 
 Route::get('/', [UserSchedulesController::class, 'index'])->name('welcome');
@@ -50,6 +52,9 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/agendar', [ClientScheduleController::class, 'index'])->name('client.schedule.index');
 Route::post('/agendar', [ClientScheduleController::class, 'store'])->name('client.schedule.store');
+
+Route::get('/schedules', [ScheduleController::class, 'getSchedules'])->name('schedules.get');
+
 // routes/web.php
 
 Route::get('/pagamentos/{scheduleId}', [PaymentController::class, 'showPaymentPage'])->name('client.payment');

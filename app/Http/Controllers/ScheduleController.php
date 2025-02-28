@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Schedule;
+use App\Models\User;
 use App\Models\LunchBreak;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -32,6 +33,28 @@ class ScheduleController extends Controller
     
     // Passando a variável para a visão
     return view('schedule.index', compact('schedules'));
+}
+
+public function getSchedules(Request $request)
+{
+    $date = $request->query('date', now()->toDateString()); // Obtém a data selecionada ou usa a atual
+    $barberId = $request->query('user_id'); // Obtém o ID do barbeiro, se existir
+
+    // Obtém apenas os usuários que são barbeiros (is_admin = 1)
+    $barbers = User::where('is_admin', 1)->pluck('id')->toArray();
+
+    // Inicia a query filtrando pela data
+    $query = Schedule::whereDate('date', $date)
+                     ->whereIn('user_id', $barbers); // Garante que o barbeiro seja admin
+
+    // Filtra pelo barbeiro selecionado, se aplicável
+    if ($barberId && in_array($barberId, $barbers)) {
+        $query->where('user_id', $barberId);
+    }
+
+    $schedules = $query->get();
+
+    return response()->json($schedules);
 }
 
 

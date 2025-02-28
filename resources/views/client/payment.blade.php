@@ -42,96 +42,33 @@
 </div>
 
 
-            <!-- Opções de Pagamento -->
-            <div class="w-4/6 pr-20 pl-20 bg-gray-100 rounded-lg">
-                <h3 class="text-2xl mt-8 font-semibold text-gray-900 mb-6 flex items-center">
-                    Escolha a Forma de Pagamento
-                </h3>
+         <!-- Opções de Pagamento -->
+<div class="w-4/6 pr-20 pl-20 bg-gray-100 rounded-lg">
+    <h3 class="text-2xl mt-8 font-semibold text-gray-900 mb-6 flex items-center">
+        Escolha a Forma de Pagamento
+    </h3>
 
-    <div class="mb-6">
-        <label class="block text-gray-700 font-medium mb-2">
-            <i class="fas fa-list mr-2 text-gray-500"></i> Escolha a forma de pagamento:
-        </label>
-
-        <div class="flex space-x-4">
-            <!-- Opção: Pix -->
-            <label for="pix" class="w-1/2 p-4 border-2 border-gray-300 rounded-lg flex items-center justify-center cursor-pointer transition duration-300 
-            hover:border-green-500 hover:bg-green-50 peer-checked:border-green-600 peer-checked:bg-green-100"
-            id="label-pix">
-                <input type="radio" name="payment_method" value="pix" class="hidden peer" id="pix">
-                <i class="fa-brands fa-pix text-xl text-green-500"></i>
-                <span class="ml-2 font-medium text-gray-700">Pix</span>
-            </label>
-
-            <!-- Opção: Cartão de Crédito -->
-            <label for="credit_card" class="w-1/2 p-4 border-2 border-gray-300 rounded-lg flex items-center justify-center cursor-pointer transition duration-300 
-            hover:border-blue-500 hover:bg-blue-50 peer-checked:border-blue-600 peer-checked:bg-blue-100"
-            id="label-credit_card">
-                <input type="radio" name="payment_method" value="credit_card" class="hidden peer" id="credit_card">
-                <i class="fas fa-credit-card text-xl text-blue-500"></i>
-                <span class="ml-2 font-medium text-gray-700">Cartão de Crédito</span>
-            </label>
-        </div>
-    </div>
-
-    <!-- Campos específicos do Cartão de Crédito -->
-    <div id="credit-card-fields" class="hidden">
-        <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">Nome no Cartão:</label>
-            <input type="text" id="card-holder-name" class="w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 uppercase" placeholder="Nome completo">
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">CPF:</label>
-            <input type="text" id="cpf" class="w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500" placeholder="000.000.000-00">
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">Número do Cartão:</label>
-            <input type="text" id="card-number" class="w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500" placeholder="0000 0000 0000 0000">
-        </div>
-
-        <div class="flex space-x-4 mb-4">
-            <div class="w-1/2">
-                <label class="block text-gray-700 font-medium mb-2">Data de Vencimento:</label>
-                <input type="text" id="expiry-date" class="w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500" placeholder="MM/AA">
-            </div>
-            <div class="w-1/2">
-                <label class="block text-gray-700 font-medium mb-2">CVC:</label>
-                <input type="text" id="cvc" class="w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500" placeholder="000">
-            </div>
-        </div>
-    </div>
-
-    <!-- Botões de Pagamento -->
-    <div class="flex justify-between gap-4 mt-6">
-        <button type="button" id="pix-btn" class="px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-full hidden">
-            <i class="fa-brands fa-pix mr-2"></i> Pagar com Pix
+    <!-- Tabs de Seleção de Pagamento -->
+    <div class="flex border-b">
+        <button id="tab-pix" class="w-1/2 py-3 text-center font-semibold text-gray-700 border-b-4 border-transparent hover:border-green-500 transition">
+            <i class="fa-brands fa-pix text-xl text-green-500"></i> Pix
         </button>
-
-
-                    
-        <button type="button" id="credit-card-btn" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full hidden">
-            <i class="fas fa-credit-card mr-2"></i> Pagar com Cartão
+        <button id="tab-cartao" class="w-1/2 py-3 text-center font-semibold text-gray-700 border-b-4 border-transparent hover:border-blue-500 transition">
+            <i class="fas fa-credit-card text-xl text-blue-500"></i> Cartão de Crédito
         </button>
     </div>
 
-
-
-  <!-- Loading -->
-  <div id="loading" class="hidden flex justify-center items-center mt-4">
-                        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500"></div>
-                        <p class="ml-3 text-gray-700">Gerando Pix...</p>
-                    </div>
-
-<!-- Área do QR Code PIX -->
-<div id="pix-payment-area" class="hidden mt-6 p-8 bg-white shadow-lg rounded-xl text-center border border-gray-300">
+<!-- Área do Pagamento PIX -->
+<div id="pix-payment-area" class="mt-6 p-8 bg-white shadow-lg rounded-xl text-center border border-gray-300">
     
+    <!-- Botão Gerar QR Code -->
+    <button id="pix-btn" class="mb-4 px-5 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-full">
+        <i class="fa-brands fa-pix mr-2"></i> Gerar QR Code
+    </button>
+
     <!-- Título -->
-    <div class="flex flex-col items-center">
-        <h2 class="text-2xl font-bold text-gray-900">Pague com Pix</h2>
-        <p class="text-gray-500 text-sm">Escaneie o QR Code abaixo para realizar o pagamento</p>
-    </div>
+    <h2 class="text-2xl font-bold text-gray-900">Pague com Pix</h2>
+    <p class="text-gray-500 text-sm">Escaneie o QR Code abaixo para realizar o pagamento</p>
 
     <!-- QR Code -->
     <div class="flex justify-center mt-5">
@@ -139,93 +76,198 @@
     </div>
 
     <!-- Código Pix Copia e Cola -->
-    <div class="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+    <div class="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200 relative">
         <p class="text-gray-600 font-medium">Ou copie e cole o código abaixo:</p>
-        <div class="relative mt-2">
-            <textarea id="pix-code" class="w-full p-3 border rounded-md bg-gray-100 text-gray-800 text-center" readonly></textarea>
-            <button id="copy-pix" class="absolute top-2 right-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                <i class="fas fa-copy"></i>
-            </button>
-        </div>
-    </div>
+        <textarea id="pix-code" class="w-full p-3 border rounded-md bg-gray-100 text-gray-800 text-center" readonly></textarea>
 
-    <!-- Armazena o TXID do PIX -->
-<input type="hidden" id="pix-txid">
+        <!-- Botão de Copiar Código -->
+        <button id="copy-pix" class="absolute top-2 right-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+            <i class="fas fa-copy"></i>
+        </button>
+    </div>
 
     <!-- Tempo Restante -->
     <p id="pix-expiration" class="text-red-500 font-semibold mt-4"></p>
 
-    <!-- Botões de Ação -->
-    <div class="flex justify-center gap-4 mt-5">
-        <button id="copy-pix-btn" class="px-5 py-3 flex items-center bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
-            <i class="fas fa-copy mr-2"></i> Copiar Código Pix
-        </button>
-        <button type="button" id="confirm-payment" class="px-5 py-3 flex items-center bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
-    <i class="fas fa-check-circle mr-2"></i> Confirmar Pagamento
-</button>
+    <!-- Botão de Confirmar Pagamento -->
+    <button type="button" id="confirm-payment" class="mt-4 px-5 py-3 flex items-center bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition w-full">
+        <i class="fas fa-check-circle mr-2"></i> Confirmar Pagamento
+    </button>
+</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+
+
+    <!-- Área do Pagamento Cartão -->
+    <div id="cartao-payment-area" class="hidden mt-6 p-8 bg-white shadow-lg rounded-xl border border-gray-300">
+        <h2 class="text-2xl font-bold text-gray-900">Pagamento com Cartão</h2>
+        <hr class="mt-3 mb-3">
+        <p id="card-fee-warning" class="hidden text-red-500 text-sm font-semibold mt-2">
+    ⚠️ O pagamento com cartão possui uma taxa adicional.
+</p>
+
+<hr class="mt-3 mb-3">
+
+        <form id="payment-form" class="relative">
+                <!-- Overlay de Loading -->
+    <div id="loading-overlay" class="hidden absolute inset-0 bg-white bg-opacity-75 flex flex-col items-center justify-center rounded-lg">
+        <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500"></div>
+        <p class="text-gray-700 mt-2">Processando pagamento...</p>
+    </div>
+    
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">Nome no Cartão:</label>
+                <input type="text" id="card-holder-name" class="w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500 uppercase" placeholder="Nome completo">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">CPF:</label>
+                <input type="text" id="cpf" class="w-full rounded-lg border-gray-300 shadow-sm p-3 focus:ring-blue-500 focus:border-blue-500" placeholder="000.000.000-00">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">Número do Cartão:</label>
+                <div id="card-element" class="w-full p-3 border rounded-lg bg-white shadow-sm"></div>
+            </div>
+
+            <button type="submit" id="pay-btn" class="mt-4 px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full">
+                <i class="fas fa-credit-card mr-2"></i> Pagar Agora
+            </button>
+        </form>
+    </div>
+</div>
+<!-- Script para Gerar QR Code, Copiar Código e Contador -->
 <script>
-$(document).ready(function () {
-    let scheduleId = $('#schedule-id').val(); // ID do agendamento
-    let inactivityTimer;
-    let timeLimit = 300000; // 5 minutos (300000ms)
-    let isBlocked = false; // Controle de bloqueio
+document.addEventListener("DOMContentLoaded", function () {
 
-    // 🔹 Função para bloquear o horário assim que o usuário entra na página
-    function bloquearHorario() {
-        if (scheduleId) {
-            console.log("🔒 Bloqueando horário...");
-            $.post('/lock-schedule', { schedule_id: scheduleId, _token: "{{ csrf_token() }}" }, function (response) {
-                console.log(response.message);
-            });
-        }
+const tabPix = document.getElementById("tab-pix");
+const tabCartao = document.getElementById("tab-cartao");
+const pixArea = document.getElementById("pix-payment-area");
+const cartaoArea = document.getElementById("cartao-payment-area");
+const totalPriceElement = document.getElementById("total-price");
+const cardFeeWarning = document.getElementById("card-fee-warning");
+
+let originalPrice = parseFloat("{{ $totalPrice }}".replace(",", ".")); // Preço original (sem taxa)
+
+// 🔹 Função para calcular o valor a ser cobrado garantindo valor líquido
+function calcularPrecoComTaxa(valorLiquido) {
+    let taxaPercentual = 0.0399; // 3,99%
+    let taxaFixa = 0.39; // R$ 0,39 fixo
+
+    return ((valorLiquido + taxaFixa) / (1 - taxaPercentual));
+}
+
+// 🔹 Alternar entre os métodos de pagamento e atualizar preço
+function togglePaymentMethod(selected) {
+    if (selected === "pix") {
+        pixArea.classList.remove("hidden");
+        cartaoArea.classList.add("hidden");
+        cardFeeWarning.classList.add("hidden"); // Esconder aviso da taxa
+
+        tabPix.classList.add("border-green-500", "bg-green-100", "border-b-4");
+        tabCartao.classList.remove("border-blue-500", "bg-blue-100", "border-b-4");
+
+        totalPriceElement.textContent = originalPrice.toFixed(2).replace(".", ","); // Restaurar preço original
+
+    } else {
+        cartaoArea.classList.remove("hidden");
+        pixArea.classList.add("hidden");
+        cardFeeWarning.classList.remove("hidden"); // Exibir aviso da taxa
+
+        tabCartao.classList.add("border-blue-500", "bg-blue-100", "border-b-4");
+        tabPix.classList.remove("border-green-500", "bg-green-100", "border-b-4");
+
+        let valorCobrado = calcularPrecoComTaxa(originalPrice);
+        totalPriceElement.textContent = valorCobrado.toFixed(2).replace(".", ","); // Atualizar preço com taxa
     }
+}
 
-    // 🔹 Função para liberar o horário via AJAX
-    function liberarHorario() {
-        if (scheduleId && !isBlocked) {
-            console.log("⏳ Usuário inativo! Liberando horário...");
+// 🔹 Evento de clique para alternar
+tabPix.addEventListener("click", function () {
+    togglePaymentMethod("pix");
+    localStorage.setItem("selectedPaymentMethod", "pix");
+});
 
-            $.post('/unlock-schedule', { schedule_id: scheduleId, _token: "{{ csrf_token() }}" }, function (response) {
-                console.log(response.message);
-                isBlocked = true; // Marcar como bloqueado
-                exibirModal(); // Exibir modal impedindo ação do usuário
-            });
-        }
-    }
+tabCartao.addEventListener("click", function () {
+    togglePaymentMethod("credit_card");
+    localStorage.setItem("selectedPaymentMethod", "credit_card");
+});
 
-    // 🔹 Detectar quando o usuário muda de aba ou fica inativo
-    document.addEventListener("visibilitychange", function () {
-        if (document.hidden) {
-            console.log("🛑 Usuário saiu da aba. Contagem regressiva iniciada...");
-            inactivityTimer = setTimeout(liberarHorario, timeLimit);
-        } else {
-            console.log("✅ Usuário voltou. Cancelando liberação.");
-            clearTimeout(inactivityTimer);
-        }
+// 🔹 Ativar o último método de pagamento selecionado (caso tenha sido salvo)
+const savedPaymentMethod = localStorage.getItem("selectedPaymentMethod");
+togglePaymentMethod(savedPaymentMethod === "credit_card" ? "credit_card" : "pix");
+
+    // 🔹 Evento para Gerar QR Code PIX
+    document.getElementById("pix-btn").addEventListener("click", function () {
+        let valor = originalPrice;
+        let nome = "{{ auth()->user()->name ?? 'Nome Fictício' }}";
+        let cpf = "123.456.789-00";
+
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Gerando...';
+
+        fetch("/gerar-pix", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+            body: JSON.stringify({ valor, nome, cpf })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("✅ PIX criado com sucesso:", data);
+
+                // Exibir QR Code
+                document.getElementById("pix-qrcode").innerHTML = "";
+                new QRCode(document.getElementById("pix-qrcode"), { text: data.location, width: 200, height: 200 });
+
+                // Preencher código Pix Copia e Cola
+                document.getElementById("pix-code").value = data.pix_copiaecola;
+
+                // Armazenar TXID para verificação
+                document.getElementById("pix-txid").value = data.txid;
+
+                // Iniciar Contagem Regressiva de 5 minutos
+                startCountdown(300);
+            } else {
+                alert("Erro ao gerar QR Code Pix.");
+            }
+        })
+        .catch(() => alert("Erro ao conectar com o servidor."))
+        .finally(() => {
+            this.disabled = false;
+            this.innerHTML = '<i class="fa-brands fa-pix mr-2"></i> Gerar QR Code';
+        });
     });
 
-    // 🔹 Detectar se o usuário saiu da página
-    window.addEventListener("beforeunload", function () {
-        liberarHorario();
+    // 🔹 Evento para Copiar Código PIX
+    document.getElementById("copy-pix").addEventListener("click", function () {
+        let pixCode = document.getElementById("pix-code");
+        pixCode.select();
+        document.execCommand("copy");
+        alert("✅ Código Pix copiado!");
     });
 
-    // 🔹 Bloquear o horário assim que o usuário entrar na página
-    bloquearHorario();
+    // 🔹 Função para Contagem Regressiva
+    function startCountdown(seconds) {
+        let timerDisplay = document.getElementById("pix-expiration");
+        let countdown = setInterval(() => {
+            let minutes = Math.floor(seconds / 60);
+            let remainingSeconds = seconds % 60;
+            timerDisplay.innerText = `⏳ Expira em: ${minutes}m ${remainingSeconds}s`;
 
-    // 🔹 Exibir modal quando o horário for liberado
-    function exibirModal() {
-        $("#modal-bloqueio").removeClass("hidden").addClass("flex");
+            if (seconds <= 0) {
+                clearInterval(countdown);
+                timerDisplay.innerText = "⏳ Expirado! Gere um novo QR Code.";
+                document.getElementById("pix-payment-area").classList.add("opacity-50");
+            }
+            seconds--;
+        }, 1000);
     }
-
-    // 🔹 Evento do botão para voltar ao início
-    $("#btn-voltar-inicio").on("click", function () {
-        window.location.href = "/"; // Redireciona para a home ou para onde desejar
-    });
 });
 </script>
+
+
+
 
 
 <!-- Modal de Bloqueio -->
@@ -250,6 +292,7 @@ $(document).ready(function () {
     </div>
 </div>
 
+
 <!-- Modal de Erro -->
 <div id="error-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center">
     <div class="bg-white rounded-lg shadow-xl p-6 text-center">
@@ -261,6 +304,23 @@ $(document).ready(function () {
     </div>
 </div>
 
+
+<!-- Modal de Pagamento -->
+<div id="payment-modal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <h2 id="modal-title" class="text-2xl font-bold"></h2>
+        <p id="modal-message" class="text-gray-600 mt-2"></p>
+        <button onclick="document.getElementById('payment-modal').classList.add('hidden')" 
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            OK
+        </button>
+    </div>
+</div>
+
+
+<!-- Armazena o TXID do PIX -->
+<input type="hidden" id="pix-txid">
+
 <!-- Input Oculto para armazenar o ID do Usuário -->
 <input type="hidden" id="user-id" value="{{ auth()->user()->id }}">
 
@@ -271,234 +331,246 @@ $(document).ready(function () {
 <input type="hidden" id="schedule-id" value="{{ $schedule->id }}">
 
 
-<!-- Script de Verificação de Pagamento -->
-<script>
-$(document).on('click', '#confirm-payment', function (e) {
-    e.preventDefault();
-    
-    let txid = $('#pix-txid').val().trim(); // Obtém o TXID correto
-    let scheduleId = $('#schedule-id').val(); // Obtém o horário selecionado
-    let userId = $('#user-id').val(); // Obtém o ID do usuário logado
-    let services = JSON.parse($('#selected-services').val()); // Obtém os serviços selecionados
-
-    console.log("🔹 TXID capturado para verificação:", txid);
-    console.log("🔹 Schedule ID:", scheduleId);
-    console.log("🔹 User ID:", userId);
-    console.log("🔹 Serviços Selecionados:", services);
-
-    if (!txid || !scheduleId || !userId) {
-        $('#error-modal').removeClass('hidden'); // Exibe modal de erro
-        return;
-    }
-
-    $.ajax({
-        url: "/verificar-pagamento",
-        type: "GET",
-        data: {
-            txid: txid,
-            schedule_id: scheduleId,
-            user_id: userId,
-            services: services
-        },
-        beforeSend: function () {
-            console.log("🔹 Enviando requisição para verificar pagamento...");
-            $('#confirm-payment').html('<i class="fas fa-spinner fa-spin mr-2"></i> Verificando...').attr('disabled', true);
-        },
-        success: function (response) {
-            console.log("✅ Resposta da API:", response);
-            if (response.success) {
-                $('#success-modal').removeClass('hidden'); // Exibe modal de sucesso
-                
-                let countdown = 5;
-                let timer = setInterval(function () {
-                    countdown--;
-                    $('#redirect-timer').text(countdown);
-                    if (countdown <= 0) {
-                        clearInterval(timer);
-                        window.location.href = "https://agendamentos.test/agendar";
-                    }
-                }, 1000);
-            } else {
-                $('#error-modal').removeClass('hidden'); // Exibe modal de erro
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("❌ Erro ao verificar pagamento:", error);
-            $('#error-modal').removeClass('hidden'); // Exibe modal de erro
-        },
-        complete: function () {
-            console.log("🔹 Requisição concluída.");
-            $('#confirm-payment').html('<i class="fas fa-check-circle mr-2"></i> Confirmar Pagamento').attr('disabled', false);
-        }
-    });
-});
-
-
-// Fechar modais manualmente
-$('#close-success').on('click', function () {
-    $('#success-modal').addClass('hidden');
-    window.location.href = "https://agendamentos.test/agendar";
-});
-$('#close-error').on('click', function () {
-    $('#error-modal').addClass('hidden');
-});
-</script>
-
-
 
     </div>
 </div>
-
-
-
-
-                
 
             </div>
 
             
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Seletores principais
-        const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
-        const creditCardFields = document.getElementById('credit-card-fields');
-        const creditCardBtn = document.getElementById('credit-card-btn');
-        const pixBtn = document.getElementById('pix-btn');
-        const pixPaymentArea = document.getElementById('pix-payment-area');
+document.addEventListener("DOMContentLoaded", function () {
 
-        // Recuperar seleção do usuário do localStorage
-        const savedPaymentMethod = localStorage.getItem('selectedPaymentMethod');
+    // Captura o botão de fechar e o modal
+    const closeErrorBtn = document.getElementById("close-error");
+    const errorModal = document.getElementById("error-modal");
 
-        if (savedPaymentMethod) {
-            document.getElementById(savedPaymentMethod).checked = true;
-            applySelectionEffect(savedPaymentMethod);
-            togglePaymentFields(savedPaymentMethod);
-        }
+    // Adiciona o evento de clique para fechar o modal
+    closeErrorBtn.addEventListener("click", function () {
+        errorModal.classList.add("hidden");
+    });
 
-        // Monitorar mudanças de seleção
-        paymentRadios.forEach(radio => {
-            radio.addEventListener("change", function () {
-                localStorage.setItem('selectedPaymentMethod', this.id); // Salvar escolha no localStorage
-                applySelectionEffect(this.id);
-                togglePaymentFields(this.value);
-            });
-        });
-
-        // Aplicar efeito visual à opção selecionada
-        function applySelectionEffect(selectedId) {
-            document.getElementById('label-credit_card').classList.remove('border-blue-600', 'bg-blue-100');
-            document.getElementById('label-pix').classList.remove('border-green-600', 'bg-green-100');
-
-            if (selectedId === 'credit_card') {
-                document.getElementById('label-credit_card').classList.add('border-blue-600', 'bg-blue-100');
-            } else if (selectedId === 'pix') {
-                document.getElementById('label-pix').classList.add('border-green-600', 'bg-green-100');
-            }
-        }
-
-        // Alternar exibição de campos com base no método de pagamento selecionado
-        function togglePaymentFields(value) {
-            if (value === 'credit_card') {
-                creditCardFields.classList.remove('hidden');
-                creditCardBtn.classList.remove('hidden');
-                pixBtn.classList.add('hidden');
-                pixPaymentArea.classList.add('hidden'); // Esconder área do Pix
-            } else if (value === 'pix') {
-                creditCardFields.classList.add('hidden');
-                creditCardBtn.classList.add('hidden');
-                pixBtn.classList.remove('hidden');
-            } else {
-                creditCardFields.classList.add('hidden');
-                creditCardBtn.classList.add('hidden');
-                pixBtn.classList.add('hidden');
-            }
-        }
-
-        $('#pix-btn').on('click', function () {
-    let valor = {{ $totalPrice }};
-    let nome = "{{ auth()->user()->name ?? 'Nome Fictício' }}";
-    let cpf = "123.456.789-00";
-
-    $('#pix-btn').attr('disabled', true);
-    $('#loading').removeClass('hidden'); // Exibir loading
-
-    $.ajax({
-        url: "/gerar-pix",
-        type: "POST",
-        data: {
-            valor: valor,
-            nome: nome,
-            cpf: cpf,
-            _token: "{{ csrf_token() }}"
-        },
-        success: function (response) {
-            if (response.success) {
-                console.log("✅ PIX criado com sucesso:", response);
-
-                // Exibir a área do pagamento
-                $('#pix-payment-area').removeClass('hidden');
-                
-                // Gerar QR Code localmente
-                $('#pix-qrcode').empty();
-                new QRCode(document.getElementById("pix-qrcode"), {
-                    text: response.location,  // 🔥 URL encurtada do Banco do Brasil
-                    width: 200,
-                    height: 200
-                });
-
-                // Inserir Pix Copia e Cola no campo
-                $('#pix-code').val(response.pix_copiaecola);
-
-                // 🔹 Armazena o TXID no input hidden para posterior verificação
-                $('#pix-txid').val(response.txid);
-                console.log("🔹 TXID correto armazenado:", response.txid);
-
-                // Iniciar contagem regressiva (5 minutos)
-                startCountdown(300);
-            } else {
-                alert('Erro ao gerar QR Code Pix.');
-            }
-        },
-        error: function () {
-            alert('Erro ao conectar com o servidor.');
-        },
-        complete: function () {
-            $('#pix-btn').attr('disabled', false);
-            $('#loading').addClass('hidden'); // Esconder loading
+    // Opcional: Fechar ao clicar fora do modal
+    errorModal.addEventListener("click", function (event) {
+        if (event.target === errorModal) {
+            errorModal.classList.add("hidden");
         }
     });
+
+    const stripe = Stripe("{{ config('services.stripe.key') }}");
+    const elements = stripe.elements();
+    const card = elements.create("card");
+    card.mount("#card-element");
+
+    // Seletores
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const creditCardFields = document.getElementById('credit-card-fields');
+    const creditCardBtn = document.getElementById('credit-card-btn');
+    const pixBtn = document.getElementById('pix-btn');
+    const pixPaymentArea = document.getElementById('pix-payment-area');
+
+    // Bloquear horário na entrada
+    let scheduleId = $('#schedule-id').val();
+    let inactivityTimer;
+    let timeLimit = 300000; // 5 minutos
+    let isBlocked = false;
+
+    bloquearHorario();
+
+
+    // Monitorar saída da aba
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+            inactivityTimer = setTimeout(liberarHorario, timeLimit);
+        } else {
+            clearTimeout(inactivityTimer);
+        }
+    });
+
+    // Detectar saída da página
+    window.addEventListener("beforeunload", function () {
+        liberarHorario();
+    });
+
+    // Função para bloquear horário
+    function bloquearHorario() {
+        if (scheduleId) {
+            $.post('/lock-schedule', { schedule_id: scheduleId, _token: "{{ csrf_token() }}" });
+        }
+    }
+
+    // Função para liberar horário
+    function liberarHorario() {
+        if (scheduleId && !isBlocked) {
+            $.post('/unlock-schedule', { schedule_id: scheduleId, _token: "{{ csrf_token() }}" }, function () {
+                isBlocked = true;
+                $("#modal-bloqueio").removeClass("hidden").addClass("flex");
+            });
+        }
+    }
+
+    // Fechar modal de bloqueio
+    $("#btn-voltar-inicio").on("click", function () {
+        window.location.href = "/";
+    });
+
+    // Gerar PIX
+    $('#pix-btn').on('click', function () {
+        let valor = {{ $totalPrice }};
+        let nome = "{{ auth()->user()->name ?? 'Nome Fictício' }}";
+        let cpf = "123.456.789-00";
+
+        $('#pix-btn').attr('disabled', true);
+        $('#loading').removeClass('hidden');
+
+        $.ajax({
+            url: "/gerar-pix",
+            type: "POST",
+            data: { valor: valor, nome: nome, cpf: cpf, _token: "{{ csrf_token() }}" },
+            success: function (response) {
+                if (response.success) {
+                    $('#pix-payment-area').removeClass('hidden');
+                    $('#pix-qrcode').empty();
+                    new QRCode(document.getElementById("pix-qrcode"), { text: response.location, width: 200, height: 200 });
+                    $('#pix-code').val(response.pix_copiaecola);
+                    $('#pix-txid').val(response.txid);
+                    startCountdown(300);
+                } else {
+                    alert('Erro ao gerar QR Code Pix.');
+                }
+            },
+            error: function () { alert('Erro ao conectar com o servidor.'); },
+            complete: function () {
+                $('#pix-btn').attr('disabled', false);
+                $('#loading').addClass('hidden');
+            }
+        });
+    });
+
+
+    // Confirmação de pagamento PIX
+    $('#confirm-payment').on('click', function (e) {
+        e.preventDefault();
+        
+        let txid = $('#pix-txid').val().trim();
+        let scheduleId = $('#schedule-id').val();
+        let userId = $('#user-id').val();
+        let services = JSON.parse($('#selected-services').val());
+
+        $.ajax({
+            url: "/verificar-pagamento",
+            type: "GET",
+            data: { txid: txid, schedule_id: scheduleId, user_id: userId, services: services },
+            beforeSend: function () {
+                $('#confirm-payment').html('<i class="fas fa-spinner fa-spin mr-2"></i> Verificando...').attr('disabled', true);
+            },
+            success: function (response) {
+                if (response.success) {
+                    $('#success-modal').removeClass('hidden');
+                    let countdown = 5;
+                    let timer = setInterval(function () {
+                        countdown--;
+                        $('#redirect-timer').text(countdown);
+                        if (countdown <= 0) {
+                            clearInterval(timer);
+                            window.location.href = "/agendar";
+                        }
+                    }, 1000);
+                } else {
+                    $('#error-modal').removeClass('hidden');
+                }
+            },
+            error: function () { $('#error-modal').removeClass('hidden'); },
+            complete: function () { $('#confirm-payment').html('<i class="fas fa-check-circle mr-2"></i> Confirmar Pagamento').attr('disabled', false); }
+        });
+    });
+
+    document.getElementById("payment-form").addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    let totalPrice = parseFloat(document.getElementById("total-price").textContent.trim().replace(".", "").replace(",", ".")) * 100;
+
+    // Capturar valores do formulário
+    let nomeCliente = document.getElementById("card-holder-name").value.trim();
+    let cpfCliente = document.getElementById("cpf").value.trim();
+    let userId = document.getElementById("user-id").value;
+    let scheduleId = document.getElementById("schedule-id").value;
+    let services = JSON.parse(document.getElementById("selected-services").value);
+
+    if (!nomeCliente || !cpfCliente) {
+        showModal("❌ Erro", "Por favor, preencha o Nome e o CPF.");
+        return;
+    }
+
+    // 🔹 Mostra "Processando..." e desativa o botão
+    let payButton = document.getElementById("pay-btn");
+    payButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processando...';
+    payButton.disabled = true;
+
+    // Criar Token do Stripe
+    const { token, error } = await stripe.createToken(card);
+
+    if (error) {
+        resetPaymentButton();
+        showModal("❌ Erro no pagamento", error.message);
+    } else {
+        fetch("{{ route('checkout.cartao') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                stripeToken: token.id,
+                valor: totalPrice,
+                user_id: userId,
+                schedule_id: scheduleId,
+                services: services,
+                nome: nomeCliente,  // 🔹 Incluindo nome do cliente
+                cpf: cpfCliente      // 🔹 Incluindo CPF do cliente
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showModal("✅ Pagamento confirmado!", "Redirecionando...");
+                setTimeout(() => { window.location.href = "/agendar"; }, 5000);
+            } else {
+                resetPaymentButton();
+                showModal("❌ Erro no pagamento", "Tente novamente.");
+            }
+        })
+        .catch(() => {
+            resetPaymentButton();
+            showModal("❌ Erro no servidor", "Falha ao processar o pagamento.");
+        });
+    }
 });
 
+// 🔹 Função para resetar o botão em caso de erro
+function resetPaymentButton() {
+    let payButton = document.getElementById("pay-btn");
+    payButton.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Pagar Agora';
+    payButton.disabled = false;
+}
 
-            $('#copy-pix').on('click', function () {
-                let pixCode = document.getElementById("pix-code");
-                pixCode.select();
-                document.execCommand("copy");
-                alert("Código Pix copiado!");
-            });
+// 🔹 Função para exibir modal de erro/sucesso
+function showModal(title, message) {
+    $('#modal-title').html(title);
+    $('#modal-message').html(message);
+    $('#payment-modal').removeClass('hidden');
+}
+});
 
-            function startCountdown(seconds) {
-                let timerDisplay = document.getElementById("pix-expiration");
-                let countdown = setInterval(function () {
-                    let minutes = Math.floor(seconds / 60);
-                    let remainingSeconds = seconds % 60;
-                    timerDisplay.innerText = `Tempo restante: ${minutes}m ${remainingSeconds}s`;
-
-                    if (seconds <= 0) {
-                        clearInterval(countdown);
-                        timerDisplay.innerText = "Expirado! Gere um novo QR Code.";
-                        $('#pix-payment-area').addClass('opacity-50');
-                    }
-                    seconds--;
-                }, 1000);
-            }
-    });
 </script>
-
 
                       
 </x-layouts.payment>
