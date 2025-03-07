@@ -16,26 +16,35 @@
             Nossos barbeiros são especialistas em transformar seu visual. Venha viver essa experiência única! ✂️🔥
         </p>
 
-        <!-- Seção de Serviços Disponíveis -->
-        <div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">💈 Serviços Disponíveis</h2>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                @foreach($services as $service)
-                    <div class="bg-gray-100 p-5 rounded-lg shadow-md text-center">
-                        <h3 class="text-xl font-semibold text-gray-800">{{ $service->name }}</h3>
-                        <p class="text-gray-600 mt-2">🕒 {{ $service->duration }} min</p>
-                        <p class="text-green-600 font-bold text-lg mt-2"> R$ {{ number_format($service->price, 2, ',', '.') }}</p>
-                    </div>
-                @endforeach
+<!-- Seção de Serviços Disponíveis -->
+<div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">💈 Serviços Disponíveis</h2>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        @foreach($services as $service)
+            <div class="bg-gray-100 p-5 rounded-lg shadow-md text-center flex flex-col items-center">
+                <!-- Exibir a imagem caso exista -->
+                @if($service->photo)
+                    <img src="{{ asset('storage/' . $service->photo) }}" 
+                        alt="{{ $service->name }}" 
+                        class="w-24 h-24 object-cover rounded-full border-4 border-gray-300 shadow-lg mx-auto">
+                @endif
+                
+                <h3 class="text-xl font-semibold text-gray-800 mt-3">{{ $service->name }}</h3>
+                <p class="text-gray-600 mt-2">🕒 {{ $service->duration }} min</p>
+                <p class="text-green-600 font-bold text-lg mt-2"> R$ {{ number_format($service->price, 2, ',', '.') }}</p>
             </div>
-        </div>
+        @endforeach
+    </div>
+</div>
+
 
 
         <div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
 
-       <!-- Filtros -->
-<div class="flex gap-4 mb-6">
+      <!-- Filtros -->
+<div class="flex gap-4 mb-6 items-end">
+    <!-- Escolher Data -->
     <div>
         <label for="date" class="block text-gray-700 font-semibold mb-1">Escolha uma data:</label>
         <input 
@@ -43,23 +52,33 @@
             id="date" 
             name="date" 
             value="{{ now()->toDateString() }}" 
-            class="rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
+            class="rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 p-2">
     </div>
 
-    <div>
-        <label for="barber" class="block text-gray-700 font-semibold mb-1">Escolha um barbeiro:</label>
-        <select id="barber" name="barber" class="rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
-            <option value="">Todos</option>
-            @foreach($barbers as $barber)
-                <option value="{{ $barber->id }}">{{ $barber->name }}</option>
-            @endforeach
-        </select>
-    </div>
+<!-- Escolher Barbeiro -->
+<div>
+    <label for="barber" class="block text-gray-700 font-semibold mb-1">Escolha um barbeiro:</label>
+    <select id="barber" name="barber" 
+        class="w-64 rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 p-2">
+        @foreach($barbers as $barber)
+            <option value="{{ $barber->id }}" {{ $loop->first ? 'selected' : '' }}>{{ $barber->name }}</option>
+        @endforeach
+    </select>
+</div>
 
+
+    <!-- Botão de Filtrar -->
     <button 
         id="filter-btn" 
-        class="self-end px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300">
-        Filtrar 📅
+        class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300">
+        <i class="fas fa-search"></i> Filtrar
+    </button>
+
+    <!-- Botão de Atualizar -->
+    <button 
+        id="refresh-btn" 
+        class="px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-300">
+        <i class="fas fa-sync-alt"></i> Atualizar
     </button>
 </div>
 
@@ -68,9 +87,6 @@
     <!-- Horários serão carregados aqui via AJAX -->
 </div>
 
-        </div>
-
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function () {
     let lastLoadedData = null; // Armazena os dados carregados para evitar chamadas desnecessárias
@@ -85,14 +101,12 @@ $(document).ready(function () {
             type: "GET",
             data: { date: selectedDate, barber_id: selectedBarber },
             success: function (response) {
-                // Se os dados carregados são os mesmos, evita nova renderização
                 if (JSON.stringify(response) === JSON.stringify(lastLoadedData)) {
                     console.log("🔄 Dados não mudaram, evitando recarga desnecessária.");
                     return;
                 }
                 
-                lastLoadedData = response; // Atualiza o cache
-
+                lastLoadedData = response;
                 let scheduleContainer = $("#schedule-container");
                 scheduleContainer.empty();
 
@@ -105,10 +119,6 @@ $(document).ready(function () {
                         let isLocked = schedule.is_locked;
                         let isBooked = schedule.is_booked;
                         let isMySchedule = (schedule.client_id == loggedUserId);
-
-                        console.log(`🔎 Horário ${schedule.id}:`, {
-                            startTime, endTime, isLocked, isBooked, clientId: schedule.client_id, isMySchedule
-                        });
 
                         let buttonHtml = "";
 
@@ -125,12 +135,12 @@ $(document).ready(function () {
                                 Horário sendo reservado ⏳
                             </button>`;
                         } else if (loggedUserId) {
-                            buttonHtml = `<button onclick="openModal(${schedule.id}, '${startTime}', '${endTime}')" 
+                            buttonHtml = `<button onclick="checkAndOpenModal(${schedule.id}, '${startTime}', '${endTime}')" 
                                 class="mt-4 w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300">
                                 Reservar ✂️
                             </button>`;
                         } else {
-                            buttonHtml = `<button onclick="openLoginModal()"
+                            buttonHtml = `<button onclick="window.location.href='{{ route('login') }}'"
                                 class="mt-4 w-full px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300">
                                 Faça login para Reservar 
                             </button>`;
@@ -162,8 +172,13 @@ $(document).ready(function () {
         loadSchedules();
     });
 
-    // 🔄 Atualiza apenas quando mudar a data ou barbeiro
+    // 🔄 Atualiza os horários ao mudar data ou barbeiro
     $("#date, #barber").on("change", function () {
+        loadSchedules();
+    });
+
+    // 🔄 Botão de atualizar horários manualmente
+    $("#refresh-btn").on("click", function () {
         loadSchedules();
     });
 
@@ -171,6 +186,7 @@ $(document).ready(function () {
     loadSchedules();
 });
 </script>
+
 
 
 
@@ -296,16 +312,60 @@ $(document).ready(function () {
             });
         });
 
-        function openModal(scheduleId, startTime, endTime) {
-            document.getElementById('modal-schedule-id').value = scheduleId;
-            document.getElementById('modal-start-time').value = startTime;
-            document.getElementById('modal-end-time').value = endTime;
-            document.getElementById('reservation-modal').classList.remove('hidden');
-        }
+        function checkAndOpenModal(scheduleId, startTime, endTime) {
+    // Cria o overlay de carregamento
+    let loadingOverlay = document.createElement("div");
+    loadingOverlay.id = "loading-overlay";
+    loadingOverlay.className = "fixed inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-75 text-white z-50";
+    
+    loadingOverlay.innerHTML = `
+        <div class="flex flex-col items-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-white border-opacity-75"></div>
+            <p class="mt-4 text-xl font-semibold">Verificando disponibilidade...</p>
+        </div>
+    `;
+    
+    document.body.appendChild(loadingOverlay);
 
-        function closeModal() {
-            document.getElementById('reservation-modal').classList.add('hidden');
+    // Garante que o loading fique na tela por pelo menos 5 segundos
+    let minLoadingTime = new Promise(resolve => setTimeout(resolve, 5000));
+
+    let checkAvailability = $.ajax({
+        url: "{{ route('schedule.check') }}",
+        type: "POST",
+        data: {
+            schedule_id: scheduleId,
+            _token: "{{ csrf_token() }}"
         }
+    });
+
+    // Espera pelo menos 5 segundos antes de remover o loading
+    Promise.all([minLoadingTime, checkAvailability]).then(([_, response]) => {
+        document.getElementById("loading-overlay").remove(); // Remove o loading
+
+        if (response.status === "available") {
+            openModal(scheduleId, startTime, endTime);
+        } else {
+            alert(response.message);
+        }
+    }).catch(() => {
+        document.getElementById("loading-overlay").remove();
+        alert("Erro ao verificar a disponibilidade. Tente novamente.");
+    });
+}
+
+
+function openModal(scheduleId, startTime, endTime) {
+    document.getElementById('modal-schedule-id').value = scheduleId;
+    document.getElementById('modal-start-time').value = startTime;
+    document.getElementById('modal-end-time').value = endTime;
+    document.getElementById('reservation-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('reservation-modal').classList.add('hidden');
+}
+
 
         function openLoginModal() {
             document.getElementById('login-modal').classList.remove('hidden');

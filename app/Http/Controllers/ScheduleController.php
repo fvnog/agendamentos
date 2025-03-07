@@ -8,6 +8,7 @@ use App\Models\LunchBreak;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class ScheduleController extends Controller
 {
@@ -35,27 +36,57 @@ class ScheduleController extends Controller
     return view('schedule.index', compact('schedules'));
 }
 
+
 public function getSchedules(Request $request)
 {
     $date = $request->query('date', now()->toDateString()); // Obtém a data selecionada ou usa a atual
-    $barberId = $request->query('user_id'); // Obtém o ID do barbeiro, se existir
+    $barberId = $request->query('barber_id'); // Obtém o ID do barbeiro, se existir
 
     // Obtém apenas os usuários que são barbeiros (is_admin = 1)
     $barbers = User::where('is_admin', 1)->pluck('id')->toArray();
 
-    // Inicia a query filtrando pela data
-    $query = Schedule::whereDate('date', $date)
-                     ->whereIn('user_id', $barbers); // Garante que o barbeiro seja admin
-
-    // Filtra pelo barbeiro selecionado, se aplicável
-    if ($barberId && in_array($barberId, $barbers)) {
-        $query->where('user_id', $barberId);
+    // Selecione o primeiro barbeiro como padrão se nenhum for escolhido
+    if (!$barberId) {
+        $barberId = reset($barbers);
     }
 
-    $schedules = $query->get();
+    // Garante que o ID do barbeiro esteja na lista de barbeiros válidos
+    if (!in_array($barberId, $barbers)) {
+        return response()->json([]);
+    }
+
+    // **CACHE - Armazena os horários por 5 minutos**
+    $cacheKey = "schedules_{$barberId}_{$date}";
+
+    $schedules = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($date, $barberId) {
+        return Schedule::whereDate('date', $date)
+                       ->where('user_id', $barberId)
+                       ->get();
+    });
 
     return response()->json($schedules);
 }
+
+
+public function checkAvailability(Request $request)
+{
+    $schedule = Schedule::find($request->schedule_id);
+
+    if (!$schedule) {
+        return response()->json(['status' => 'error', 'message' => 'Horário não encontrado.'], 404);
+    }
+
+    if ($schedule->is_booked) {
+        return response()->json(['status' => 'booked', 'message' => 'Este horário já foi reservado.']);
+    }
+
+    if ($schedule->is_locked) {
+        return response()->json(['status' => 'locked', 'message' => 'Este horário está sendo reservado por outro usuário.']);
+    }
+
+    return response()->json(['status' => 'available']);
+}
+
 
 
     // Exibe o formulário para criação de horários

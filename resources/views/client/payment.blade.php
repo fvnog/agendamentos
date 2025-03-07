@@ -417,10 +417,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Fechar modal de bloqueio
-    $("#btn-voltar-inicio").on("click", function () {
-        window.location.href = "/";
-    });
+// Fechar modal de bloqueio e redirecionar para a rota de agendamento
+$("#btn-voltar-inicio").on("click", function () {
+    window.location.href = "{{ route('client.schedule.index') }}";
+});
+
 
     // Gerar PIX
     $('#pix-btn').on('click', function () {

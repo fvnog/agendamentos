@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Schedule;
 use App\Models\User;
-
+use App\Models\Payment; // Importa o modelo de pagamentos
 use Illuminate\Support\Facades\Auth;
 
 class PixPaymentController extends Controller
@@ -153,7 +153,6 @@ class PixPaymentController extends Controller
     return $tokenResponse->json()['access_token'];
 }
 
-
 public function verificarPagamento(Request $request)
 {
     try {
@@ -169,7 +168,7 @@ public function verificarPagamento(Request $request)
 
         // 🔹 Credenciais da API do BB
         $gwDevAppKey = "c27196995c7578b34bfbbf6ff99c5a3e";
-        $accessToken = $this->getAccessToken(); // Obtém o token de acesso novamente
+        $accessToken = $this->getAccessToken();
 
         // 🔹 URL de consulta
         $pixUrl = "https://api.hm.bb.com.br/pix/v2/cob/{$txid}";
@@ -202,6 +201,7 @@ public function verificarPagamento(Request $request)
             $userId = $request->user_id;
             $scheduleId = $request->schedule_id;
             $services = $request->services; // JSON com serviços selecionados
+            $amount = $request->amount; // Valor do pagamento
 
             // 🔹 Verifica se o usuário está autenticado
             $user = User::find($userId);
@@ -228,7 +228,21 @@ public function verificarPagamento(Request $request)
                 'services' => json_encode($services)
             ]);
 
-            Log::info("✅ Horário reservado com sucesso!", ['schedule_id' => $scheduleId, 'user_id' => $user->id]);
+            // 🔹 Registra o pagamento na tabela `payments`
+            $payment = Payment::create([
+                'user_id' => $user->id,
+                'schedule_id' => $schedule->id,
+                'type' => 'pix',
+                'amount' => $amount,
+                'txid' => $txid,
+                'services' => json_encode($services)
+            ]);
+
+            Log::info("✅ Pagamento registrado e horário reservado!", [
+                'payment_id' => $payment->id,
+                'schedule_id' => $scheduleId,
+                'user_id' => $user->id
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -252,7 +266,6 @@ public function verificarPagamento(Request $request)
         ], 500);
     }
 }
-
 
 public function lockSchedule(Request $request)
 {
