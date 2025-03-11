@@ -32,7 +32,6 @@ class DashboardController extends Controller
         $pendingAppointments = Schedule::where('user_id', $barbeiroId)
                                        ->whereDate('date', Carbon::today())
                                        ->where('is_booked', 0)
-                                       ->where('is_locked', 0)
                                        ->count();
 
         return view('dashboard', compact('totalUsers', 'appointmentsToday', 'pendingAppointments'));

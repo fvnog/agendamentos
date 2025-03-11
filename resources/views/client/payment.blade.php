@@ -1,62 +1,64 @@
 <x-layouts.payment>
-    <div class="flex items-center justify-center min-h-screen bg-white">
-        <div class="shadow-xl bg-white flex overflow-hidden">
-<!-- Resumo da Reserva -->
-<div class="w-screen h-screen p-20 bg-gray-800 text-white relative">
-    <!-- Botão de Voltar -->
-    <button onclick="window.history.back()" 
-        class="absolute top-12 left-12 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-300 flex items-center">
-        <i class="fas fa-arrow-left mr-2"></i> Voltar
-    </button>
+<div class="flex flex-col md:flex-row items-center justify-center min-h-screen bg-white">
+        <div class="shadow-xl bg-white flex flex-col md:flex-row overflow-hidden w-full max-w-5xl">
 
-    <h5 class="font-semibold mt-12 mb-8 text-xl">Resumo da Reserva</h5>
 
-    <div class="mb-8">
-        <strong class="mb-5 text-lg">Total a pagar:</strong><br>
-        <h1 class="font-bold mt-4">
-            <span class="text-4xl">R$</span>
-            <span class="text-6xl" id="total-price">{{ number_format($totalPrice, 2, ',', '.') }}</span>
-        </h1>
-    </div>
+            <!-- Resumo da Reserva -->
+            <div class="w-full md:w-2/5 p-6 md:p-20 bg-gray-800 text-white relative">
+                <!-- Botão de Voltar -->
+                <button onclick="window.history.back()" 
+                    class="absolute top-6 left-6 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-300 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Voltar
+                </button>
 
-    <div class="mb-6 space-y-3">
-        <p><i class="fas fa-calendar-day mr-2"></i><strong>Data:</strong> {{ \Carbon\Carbon::parse($schedule->date)->format('d/m/Y') }}</p>
-        <p><i class="fas fa-clock mr-2"></i><strong>Horário:</strong> {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</p>
-        <p><i class="fas fa-user mr-2"></i><strong>Barbeiro:</strong> {{ $barber->name }}</p>
-    </div>
+                <h5 class="font-semibold mt-12 md:mt-16 mb-8 text-xl text-center md:text-left">Resumo da Reserva</h5>
 
-    <hr class="border-gray-600">
-
-    <div class="mt-4">
-        <strong class="text-lg">Serviços Selecionados:</strong>
-        <div class="mt-5 space-y-2">
-            @foreach($selectedServices as $service)
-                <div class="flex justify-between text-lg">
-                    <span>{{ $service->name }} ({{ $service->duration }} min)</span>
-                    <span class="font-semibold">R$ {{ number_format($service->price, 2, ',', '.') }}</span>
+                <div class="mb-8 text-center md:text-left">
+                    <strong class="mb-5 text-lg">Total a pagar:</strong><br>
+                    <h1 class="font-bold mt-4">
+                        <span class="text-4xl">R$</span>
+                        <span class="text-6xl" id="total-price">{{ number_format($totalPrice, 2, ',', '.') }}</span>
+                    </h1>
                 </div>
-            @endforeach
-        </div>
-    </div>
 
-</div>
+                <div class="mb-6 space-y-3">
+                    <p><i class="fas fa-calendar-day mr-2"></i><strong>Data:</strong> {{ \Carbon\Carbon::parse($schedule->date)->format('d/m/Y') }}</p>
+                    <p><i class="fas fa-clock mr-2"></i><strong>Horário:</strong> {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</p>
+                    <p><i class="fas fa-user mr-2"></i><strong>Barbeiro:</strong> {{ $barber->name }}</p>
+                </div>
+
+                <hr class="border-gray-600">
+
+                <div class="mt-4">
+                    <strong class="text-lg">Serviços Selecionados:</strong>
+                    <div class="mt-5 space-y-2">
+                        @foreach($selectedServices as $service)
+                            <div class="flex justify-between text-lg">
+                                <span>{{ $service->name }} ({{ $service->duration }} min)</span>
+                                <span class="font-semibold">R$ {{ number_format($service->price, 2, ',', '.') }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
 
 
-         <!-- Opções de Pagamento -->
-<div class="w-4/6 pr-20 pl-20 bg-gray-100 rounded-lg">
-    <h3 class="text-2xl mt-8 font-semibold text-gray-900 mb-6 flex items-center">
-        Escolha a Forma de Pagamento
-    </h3>
 
-    <!-- Tabs de Seleção de Pagamento -->
-    <div class="flex border-b">
-        <button id="tab-pix" class="w-1/2 py-3 text-center font-semibold text-gray-700 border-b-4 border-transparent hover:border-green-500 transition">
-            <i class="fa-brands fa-pix text-xl text-green-500"></i> Pix
-        </button>
-        <button id="tab-cartao" class="w-1/2 py-3 text-center font-semibold text-gray-700 border-b-4 border-transparent hover:border-blue-500 transition">
-            <i class="fas fa-credit-card text-xl text-blue-500"></i> Cartão de Crédito
-        </button>
-    </div>
+            <!-- Opções de Pagamento -->
+            <div class="w-full md:w-3/5 p-6 md:p-20 bg-gray-100 rounded-lg">
+                <h3 class="text-xl md:text-2xl mt-4 md:mt-8 font-semibold text-gray-900 mb-6 text-center md:text-left">
+                    Escolha a Forma de Pagamento
+                </h3>
+
+  <!-- Tabs de Seleção de Pagamento -->
+  <div class="flex border-b">
+                    <button id="tab-pix" class="w-1/2 py-3 text-center font-semibold text-gray-700 border-b-4 border-transparent hover:border-green-500 transition">
+                        <i class="fa-brands fa-pix text-xl text-green-500"></i> Pix
+                    </button>
+                    <button id="tab-cartao" class="w-1/2 py-3 text-center font-semibold text-gray-700 border-b-4 border-transparent hover:border-blue-500 transition">
+                        <i class="fas fa-credit-card text-xl text-blue-500"></i> Cartão de Crédito
+                    </button>
+                </div>
 
 <!-- Área do Pagamento PIX -->
 <div id="pix-payment-area" class="mt-6 p-8 bg-white shadow-lg rounded-xl text-center border border-gray-300">
@@ -89,6 +91,17 @@
     <!-- Tempo Restante -->
     <p id="pix-expiration" class="text-red-500 font-semibold mt-4"></p>
 
+    <hr>
+            <div class="mb-4 text-center mt-4">
+                    <strong class="mb-3 text-lg">Total a pagar:</strong><br>
+                    <h1 class="font-bold mt-4">
+                        <span class="text-2xl">R$</span>
+                        <span class="text-3xl" id="total-price">{{ number_format($totalPrice, 2, ',', '.') }}</span>
+                    </h1>
+                </div>
+                <hr>
+                
+                
     <!-- Botão de Confirmar Pagamento -->
     <button type="button" id="confirm-payment" class="mt-4 px-5 py-3 flex items-center bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition w-full">
         <i class="fas fa-check-circle mr-2"></i> Confirmar Pagamento
@@ -130,21 +143,34 @@
                 <div id="card-element" class="w-full p-3 border rounded-lg bg-white shadow-sm"></div>
             </div>
 
+            <hr>
+            <div class="mb-4 text-center mt-4">
+                    <strong class="mb-3 text-lg">Total a pagar:</strong><br>
+                    <h1 class="font-bold mt-4">
+                        <span class="text-2xl">R$</span>
+                        <span class="text-3xl" id="total-price">{{ number_format($totalPrice, 2, ',', '.') }}</span>
+                    </h1>
+                </div>
+                <hr>
+                
             <button type="submit" id="pay-btn" class="mt-4 px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full">
                 <i class="fas fa-credit-card mr-2"></i> Pagar Agora
             </button>
         </form>
     </div>
 </div>
+
+
+
 <!-- Script para Gerar QR Code, Copiar Código e Contador -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-const tabPix = document.getElementById("tab-pix");
+    const tabPix = document.getElementById("tab-pix");
 const tabCartao = document.getElementById("tab-cartao");
 const pixArea = document.getElementById("pix-payment-area");
 const cartaoArea = document.getElementById("cartao-payment-area");
-const totalPriceElement = document.getElementById("total-price");
+const totalPriceElements = document.querySelectorAll("[id='total-price']"); // Pega todos os elementos com ID 'total-price'
 const cardFeeWarning = document.getElementById("card-fee-warning");
 
 let originalPrice = parseFloat("{{ $totalPrice }}".replace(",", ".")); // Preço original (sem taxa)
@@ -157,6 +183,13 @@ function calcularPrecoComTaxa(valorLiquido) {
     return ((valorLiquido + taxaFixa) / (1 - taxaPercentual));
 }
 
+// 🔹 Atualizar ambos os preços ao mesmo tempo
+function atualizarPreco(valor) {
+    totalPriceElements.forEach(element => {
+        element.textContent = valor.toFixed(2).replace(".", ",");
+    });
+}
+
 // 🔹 Alternar entre os métodos de pagamento e atualizar preço
 function togglePaymentMethod(selected) {
     if (selected === "pix") {
@@ -167,7 +200,7 @@ function togglePaymentMethod(selected) {
         tabPix.classList.add("border-green-500", "bg-green-100", "border-b-4");
         tabCartao.classList.remove("border-blue-500", "bg-blue-100", "border-b-4");
 
-        totalPriceElement.textContent = originalPrice.toFixed(2).replace(".", ","); // Restaurar preço original
+        atualizarPreco(originalPrice); // Restaurar preço original
 
     } else {
         cartaoArea.classList.remove("hidden");
@@ -178,7 +211,7 @@ function togglePaymentMethod(selected) {
         tabPix.classList.remove("border-green-500", "bg-green-100", "border-b-4");
 
         let valorCobrado = calcularPrecoComTaxa(originalPrice);
-        totalPriceElement.textContent = valorCobrado.toFixed(2).replace(".", ","); // Atualizar preço com taxa
+        atualizarPreco(valorCobrado); // Atualizar os dois preços com a taxa do cartão
     }
 }
 
@@ -196,6 +229,7 @@ tabCartao.addEventListener("click", function () {
 // 🔹 Ativar o último método de pagamento selecionado (caso tenha sido salvo)
 const savedPaymentMethod = localStorage.getItem("selectedPaymentMethod");
 togglePaymentMethod(savedPaymentMethod === "credit_card" ? "credit_card" : "pix");
+
 
     // 🔹 Evento para Gerar QR Code PIX
     document.getElementById("pix-btn").addEventListener("click", function () {

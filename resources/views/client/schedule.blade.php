@@ -40,52 +40,57 @@
 
 
 
-        <div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
+<div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
 
-      <!-- Filtros -->
-<div class="flex gap-4 mb-6 items-end">
-    <!-- Escolher Data -->
-    <div>
-        <label for="date" class="block text-gray-700 font-semibold mb-1">Escolha uma data:</label>
-        <input 
-            type="date" 
-            id="date" 
-            name="date" 
-            value="{{ now()->toDateString() }}" 
-            class="rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 p-2">
+    <!-- Filtros -->
+    <div class="flex flex-col md:flex-row gap-4 mb-6 items-stretch md:items-end">
+
+        <!-- Escolher Data -->
+        <div class="w-full md:w-auto">
+            <label for="date" class="block text-gray-700 font-semibold mb-1">Escolha uma data:</label>
+            <input 
+                type="date" 
+                id="date" 
+                name="date" 
+                value="{{ now()->toDateString() }}" 
+                class="w-full md:w-auto rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 p-2">
+        </div>
+
+        <!-- Escolher Barbeiro -->
+        <div class="w-full md:w-auto">
+            <label for="barber" class="block text-gray-700 font-semibold mb-1">Escolha um barbeiro:</label>
+            <select id="barber" name="barber" 
+                class="w-full md:w-64 rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 p-2">
+                @foreach($barbers as $barber)
+                    <option value="{{ $barber->id }}" {{ $loop->first ? 'selected' : '' }}>{{ $barber->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+            <!-- Botão de Filtrar -->
+            <button 
+                id="filter-btn" 
+                class="w-full md:w-auto px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300">
+                <i class="fas fa-search"></i> Filtrar
+            </button>
+
+            <!-- Botão de Atualizar -->
+            <button 
+                id="refresh-btn" 
+                class="w-full md:w-auto px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-300">
+                <i class="fas fa-sync-alt"></i> Atualizar
+            </button>
+        </div>
     </div>
 
-<!-- Escolher Barbeiro -->
-<div>
-    <label for="barber" class="block text-gray-700 font-semibold mb-1">Escolha um barbeiro:</label>
-    <select id="barber" name="barber" 
-        class="w-64 rounded-md border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 p-2">
-        @foreach($barbers as $barber)
-            <option value="{{ $barber->id }}" {{ $loop->first ? 'selected' : '' }}>{{ $barber->name }}</option>
-        @endforeach
-    </select>
+    <!-- Lista de Horários Disponíveis -->
+    <div id="schedule-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Horários serão carregados aqui via AJAX -->
+    </div>
 </div>
 
-
-    <!-- Botão de Filtrar -->
-    <button 
-        id="filter-btn" 
-        class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300">
-        <i class="fas fa-search"></i> Filtrar
-    </button>
-
-    <!-- Botão de Atualizar -->
-    <button 
-        id="refresh-btn" 
-        class="px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-300">
-        <i class="fas fa-sync-alt"></i> Atualizar
-    </button>
-</div>
-
-<!-- Lista de Horários Disponíveis -->
-<div id="schedule-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    <!-- Horários serão carregados aqui via AJAX -->
-</div>
 
 <script>
 $(document).ready(function () {
@@ -191,11 +196,10 @@ $(document).ready(function () {
 
 
     </div>
-
-  <!-- Modal de Reservar -->
-  <div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
-        <h2 class="text-xl font-semibold mb-4">Reservar Horário</h2>
+<!-- Modal de Reservar -->
+<div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg md:w-1/3 md:max-w-2xl overflow-y-auto max-h-[90vh]">
+        <h2 class="text-xl font-semibold mb-4 text-center md:text-left">Reservar Horário</h2>
         <form method="POST" action="{{ route('client.payment.showPaymentPage') }}">
             @csrf
             <input type="hidden" name="schedule_id" id="modal-schedule-id">
@@ -205,7 +209,7 @@ $(document).ready(function () {
             <!-- Selecionar Barbeiro -->
             <div class="mb-4">
                 <label for="barber" class="block text-gray-700">Escolha o barbeiro:</label>
-                <select name="barber_id" id="barber" class="w-full rounded-md border-gray-300 shadow-sm">
+                <select name="barber_id" id="barber" class="w-full rounded-md border-gray-300 shadow-sm p-2">
                     @foreach($barbers as $barber)
                         <option value="{{ $barber->id }}">{{ $barber->name }}</option>
                     @endforeach
@@ -226,7 +230,7 @@ $(document).ready(function () {
                                 data-duration="{{ $service->duration }}" 
                                 data-price="{{ $service->price }}" 
                                 class="service-checkbox">
-                            <label for="service-{{ $service->id }}">
+                            <label for="service-{{ $service->id }}" class="flex-1">
                                 {{ $service->name }} ({{ $service->duration }} min) - R$ {{ number_format($service->price, 2, ',', '.') }}
                             </label>
                         </div>
@@ -238,13 +242,12 @@ $(document).ready(function () {
                 <p id="time-warning" class="text-red-500 hidden mt-2">O tempo total dos serviços selecionados ultrapassa o limite do horário disponível.</p>
             </div>
 
-            <div class="flex justify-end gap-4">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">
+            <!-- Botões -->
+            <div class="flex flex-col md:flex-row justify-end gap-2">
+                <button type="button" onclick="closeModal()" class="w-full md:w-auto px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">
                     Cancelar
                 </button>
-                <button type="submit" 
-                    id="confirm-button" 
-                    class="px-4 py-2 bg-green-700 text-white rounded-lg">
+                <button type="submit" id="confirm-button" class="w-full md:w-auto px-4 py-2 bg-green-700 text-white rounded-lg">
                     Confirmar
                 </button>
             </div>

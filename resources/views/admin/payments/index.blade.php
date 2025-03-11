@@ -52,9 +52,10 @@
                                         <td class="px-4 py-3">{{ $pagamento->user->name ?? 'Não cadastrado' }}</td>
                                         <td class="px-4 py-3">R$ {{ number_format($pagamento->amount, 2, ',', '.') }}</td>
                                         <td class="px-4 py-3">
-                                            @php
-                                                $services = json_decode($pagamento->services, true);
-                                            @endphp
+@php
+    $services = is_string($pagamento->services) ? json_decode($pagamento->services, true) : $pagamento->services;
+@endphp
+
                                             @if($services)
                                                 <ul class="list-disc ml-4 text-sm text-gray-400">
                                                     @foreach($services as $service)

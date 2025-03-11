@@ -78,15 +78,35 @@
                     </a>
                 </li>
 
-                <!-- Criar Horários -->
-                <li>
-                    <a href="{{ route('schedules.create') }}" 
-                    class="relative flex flex-row items-center h-12 focus:outline-none px-6 transition
-                    {{ request()->routeIs('schedules.create') ? 'bg-gray-800 text-yellow-400 border-l-4 border-yellow-400' : 'text-gray-300 hover:text-yellow-400 border-l-4 border-transparent hover:border-yellow-400 hover:bg-gray-800' }}">
-                        <i class="fas fa-calendar-plus w-5 h-5"></i>
-                        <span class="ml-3 text-sm font-semibold">Criar Horários</span>
-                    </a>
-                </li>
+<!-- Criar Horários -->
+<li>
+    <a href="{{ route('schedules.create') }}" 
+    class="relative flex flex-row items-center h-12 focus:outline-none px-6 transition
+    {{ request()->routeIs('schedules.create') ? 'bg-gray-800 text-yellow-400 border-l-4 border-yellow-400' : 'text-gray-300 hover:text-yellow-400 border-l-4 border-transparent hover:border-yellow-400 hover:bg-gray-800' }}">
+        <i class="fas fa-calendar-plus w-5 h-5"></i>
+        <span class="ml-3 text-sm font-semibold">Criar Horários</span>
+    </a>
+</li>
+
+<!-- Excluir Horários -->
+<li>
+    <a href="{{ route('schedules.delete') }}" 
+    class="relative flex flex-row items-center h-12 focus:outline-none px-6 transition
+    {{ request()->routeIs('schedules.delete') ? 'bg-gray-800 text-yellow-400 border-l-4 border-yellow-400' : 'text-gray-300 hover:text-yellow-400 border-l-4 border-transparent hover:border-yellow-400 hover:bg-gray-800' }}">
+        <i class="fas fa-trash-alt w-5 h-5"></i>
+        <span class="ml-3 text-sm font-semibold">Excluir Horários</span>
+    </a>
+</li>
+
+<!-- Horários Fixos -->
+<li>
+    <a href="{{ route('schedules.fixed.index') }}" 
+    class="relative flex flex-row items-center h-12 focus:outline-none px-6 transition
+    {{ request()->routeIs('schedules.fixed.index') ? 'bg-gray-800 text-yellow-400 border-l-4 border-yellow-400' : 'text-gray-300 hover:text-yellow-400 border-l-4 border-transparent hover:border-yellow-400 hover:bg-gray-800' }}">
+        <i class="fas fa-calendar-check w-5 h-5"></i>
+        <span class="ml-3 text-sm font-semibold">Horários Fixos</span>
+    </a>
+</li>
 
                 <hr>
 
@@ -106,7 +126,7 @@
                 <li>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="relative flex flex-row items-center h-12 w-full focus:outline-none hover:bg-red-700 text-gray-300 hover:text-white border-l-4 border-transparent hover:border-red-500 px-6 transition">
+                        <button type="submit" class="relative flex flex-row items-center h-12 w-full focus:outline-none hover:bg-yellow-700 text-gray-300 hover:text-white border-l-4 border-transparent hover:border-yellow-500 px-6 transition">
                             <i class="fas fa-sign-out-alt w-5 h-5"></i>
                             <span class="ml-3 text-sm font-semibold">Sair</span>
                         </button>

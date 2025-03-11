@@ -56,9 +56,10 @@
                     @endif
 
                     <!-- Exibir Serviços Agendados -->
-                    @php
-                        $services = json_decode($schedule->services, true);
-                    @endphp
+@php
+    $services = is_array($schedule->services) ? $schedule->services : json_decode($schedule->services, true);
+@endphp
+
                     @if(!empty($services))
                         <p class="text-white font-semibold mt-2">Serviços:</p>
                         <ul class="text-white text-sm">

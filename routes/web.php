@@ -18,28 +18,29 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Models\Schedule;
+use App\Http\Controllers\FixedScheduleController;
+use App\Http\Controllers\DeleteScheduleController;
 
 Route::get('/agendamentos-whatsapp-bot-3478fhjdks', function (Request $request) {
     $date = $request->input('date', Carbon::today()->toDateString()); // Captura a data da URL ou usa a atual
 
-    // Usa cache para reduzir consultas desnecessárias ao banco
-    $schedules = Cache::remember("agendamentos-$date", 300, function () use ($date) {
-        return Schedule::whereDate('date', $date)
-            ->whereNotNull('client_id') // Apenas horários reservados
-            ->with('client') // Carrega os dados do cliente
-            ->get()
-            ->map(function ($schedule) {
-                return [
-                    'id' => $schedule->id,
-                    'client_name' => $schedule->client->name ?? 'Não cadastrado',
-                    'client_phone' => $schedule->client->telefone ?? '',
-                    'start_time' => Carbon::parse($schedule->start_time)->format('H:i'),
-                ];
-            });
-    });
+    // 🔹 BUSCA DIRETA NO BANCO, SEM CACHE
+    $schedules = Schedule::whereDate('date', $date)
+        ->whereNotNull('client_id') // Apenas horários reservados
+        ->with('client') // Carrega os dados do cliente
+        ->get()
+        ->map(function ($schedule) {
+            return [
+                'id' => $schedule->id,
+                'client_name' => $schedule->client->name ?? 'Não cadastrado',
+                'client_phone' => $schedule->client->telefone ?? '',
+                'start_time' => Carbon::parse($schedule->start_time)->format('H:i'),
+            ];
+        });
 
     return response()->json($schedules);
 });
+
 
 
 Route::get('/verificar-pagamento', [PixPaymentController::class, 'verificarPagamento']);
@@ -67,7 +68,23 @@ Route::middleware('auth')->group(function () {
     Route::resource('appointments', AppointmentController::class);
     Route::resource('users', UserController::class);
 
+    
     Route::get('/schedules/create', [ScheduleController::class, 'create'])->name('schedules.create');
+    Route::post('/schedules/store', [ScheduleController::class, 'store'])->name('schedules.store');
+    
+    Route::get('/schedules/delete', [DeleteScheduleController::class, 'index'])->name('schedules.delete');
+    Route::post('/schedules/delete/single', [DeleteScheduleController::class, 'deleteSingle'])->name('schedules.delete.single');
+    Route::post('/schedules/delete/by-date', [DeleteScheduleController::class, 'deleteByDate'])->name('schedules.delete.byDate');
+    Route::post('/schedules/delete/future', [DeleteScheduleController::class, 'deleteFutureSchedules'])->name('schedules.delete.future');
+    
+// Gerenciamento de Horários Fixos
+// Gerenciamento de Horários Fixos
+Route::get('/schedules/fixed', [FixedScheduleController::class, 'index'])->name('schedules.fixed.index');
+Route::post('/schedules/fixed/store', [FixedScheduleController::class, 'store'])->name('schedules.fixed.store');
+Route::post('/schedules/fixed/delete', [FixedScheduleController::class, 'delete'])->name('schedules.fixed.delete');
+Route::post('/schedules/fixed/update', [FixedScheduleController::class, 'updateServices'])->name('schedules.fixed.update');
+
+
     Route::post('/schedules', [ScheduleController::class, 'store'])->name('schedules.store');
 
     Route::get('/schedules', [UserSchedulesController::class, 'index'])->name('schedules.index');

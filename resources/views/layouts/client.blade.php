@@ -21,29 +21,30 @@
             <i class="fas fa-cut"></i> GS Barbearia
         </a>
 
-        <!-- Menu -->
-        <div class="flex items-center gap-6">
+        <!-- Botão Mobile -->
+        <button id="mobile-menu-button" class="text-white text-2xl md:hidden focus:outline-none">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Menu (Desktop & Mobile) -->
+        <div id="menu" class="hidden md:flex flex-col md:flex-row items-center gap-6 absolute md:static top-16 left-0 w-full md:w-auto bg-gray-900 md:bg-transparent p-6 md:p-0 md:shadow-none shadow-md">
             @auth
-                <!-- Se for admin, exibe botão para painel -->
                 @if(auth()->user()->is_admin)
-                    <a href="{{ route('dashboard') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <a href="{{ route('dashboard') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full md:w-auto text-center">
                         <i class="fas fa-cog"></i> Painel Admin
                     </a>
                 @endif
                 
-                <!-- Nome do Usuário -->
-                <span class="text-white text-lg">{{ auth()->user()->name }}</span>
+                <span class="text-white text-lg text-center w-full md:w-auto">{{ auth()->user()->name }}</span>
                 
-                <!-- Botão de Logout -->
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="w-full md:w-auto">
                     @csrf
-                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
+                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition w-full md:w-auto">
                         <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
                 </form>
             @else
-                <!-- Botão de Login -->
-                <a href="{{ route('login') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                <a href="{{ route('login') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition w-full md:w-auto text-center">
                     <i class="fas fa-sign-in-alt"></i> Entrar
                 </a>
             @endauth
@@ -58,6 +59,12 @@
         {{ $slot }}
     </main>
 </div>
+
+<script>
+    document.getElementById('mobile-menu-button').addEventListener('click', function () {
+        document.getElementById('menu').classList.toggle('hidden');
+    });
+</script>
 
 </body>
 </html>

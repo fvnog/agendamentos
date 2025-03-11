@@ -29,18 +29,29 @@ class AdminFinanceController extends Controller
 
         // 🔹 Serviços mais vendidos
         $servicosMaisVendidos = [];
+
         foreach ($pagamentos as $pagamento) {
-            $services = json_decode($pagamento->services, true);
-            if ($services) {
+            $services = $pagamento->services;
+
+            // ✅ Se for uma string JSON, decodifica
+            if (is_string($services)) {
+                $services = json_decode($services, true);
+            }
+
+            // ✅ Se for um array válido, processa
+            if (is_array($services) && !empty($services)) {
                 foreach ($services as $service) {
-                    if (isset($servicosMaisVendidos[$service['name']])) {
-                        $servicosMaisVendidos[$service['name']]++;
-                    } else {
-                        $servicosMaisVendidos[$service['name']] = 1;
+                    if (isset($service['name'])) {
+                        if (isset($servicosMaisVendidos[$service['name']])) {
+                            $servicosMaisVendidos[$service['name']]++;
+                        } else {
+                            $servicosMaisVendidos[$service['name']] = 1;
+                        }
                     }
                 }
             }
         }
+
 
         arsort($servicosMaisVendidos); // Ordena do mais vendido para o menos vendido
 
