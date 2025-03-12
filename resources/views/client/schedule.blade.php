@@ -91,7 +91,6 @@
     </div>
 </div>
 
-
 <script>
 $(document).ready(function () {
     let lastLoadedData = null; // Armazena os dados carregados para evitar chamadas desnecessárias
@@ -124,10 +123,26 @@ $(document).ready(function () {
                         let isLocked = schedule.is_locked;
                         let isBooked = schedule.is_booked;
                         let isMySchedule = (schedule.client_id == loggedUserId);
+                        
+                        // Converter horários para comparar com o horário atual
+                        let currentTime = new Date();
+                        let startDateTime = new Date(`${schedule.date} ${startTime}`);
+                        let endDateTime = new Date(`${schedule.date} ${endTime}`);
 
                         let buttonHtml = "";
 
-                        if (isMySchedule) {
+                        // Verifica se o horário já expirou
+                        if (currentTime > endDateTime) {
+                            if (isMySchedule) {
+                                buttonHtml = `<button class="mt-4 w-full px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg cursor-not-allowed">
+                                    Meu Horário, Expirado ⏳
+                                </button>`;
+                            } else {
+                                buttonHtml = `<button class="mt-4 w-full px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg cursor-not-allowed opacity-75">
+                                    Horário Expirado ⏰
+                                </button>`;
+                            }
+                        } else if (isMySchedule) {
                             buttonHtml = `<button class="mt-4 w-full px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg cursor-not-allowed">
                                 Meu Horário 🏆
                             </button>`;
@@ -154,7 +169,7 @@ $(document).ready(function () {
                         let scheduleCard = `
                             <div class="bg-white p-5 rounded-lg shadow-md text-center border border-gray-200">
                                 <h3 class="text-xl font-bold text-gray-900">
-                                    ${new Date(schedule.date).toLocaleDateString('pt-BR')}
+                                    ${new Date(schedule.date + 'T00:00:00').toLocaleDateString('pt-BR')}
                                 </h3>
                                 <p class="text-gray-700 mt-2"><strong>Início:</strong> ${startTime}</p>
                                 <p class="text-gray-700"><strong>Fim:</strong> ${endTime}</p>
