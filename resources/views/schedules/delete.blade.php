@@ -29,11 +29,12 @@
                 </form>
 
                 <!-- Excluir todos os horários futuros -->
-                <form method="POST" action="{{ route('schedules.delete.future') }}" class="mb-4">
+                <button class="w-full bg-red-600 py-2 rounded-lg hover:bg-red-700 delete-btn" 
+                        data-form="delete-future-form" data-message="Tem certeza que deseja excluir todos os horários futuros?">
+                    Excluir Todos os Horários Futuros
+                </button>
+                <form id="delete-future-form" method="POST" action="{{ route('schedules.delete.future') }}" class="hidden">
                     @csrf
-                    <button type="submit" class="w-full bg-red-600 py-2 rounded-lg hover:bg-red-700">
-                        Excluir Todos os Horários Futuros
-                    </button>
                 </form>
 
                 @foreach($paginatedSchedules as $date => $schedulesGroup)
@@ -44,24 +45,26 @@
                         </button>
 
                         <!-- Excluir todos os horários deste dia -->
-                        <form method="POST" action="{{ route('schedules.delete.byDate') }}" class="mt-2">
+                        <button class="w-full bg-red-500 text-white py-1 rounded-lg hover:bg-red-600 delete-btn mt-2"
+                                data-form="delete-date-{{ $date }}" data-message="Tem certeza que deseja excluir todos os horários de {{ \Carbon\Carbon::parse($date)->translatedFormat('d/m/Y') }}?">
+                            Excluir Todos os Horários de {{ \Carbon\Carbon::parse($date)->translatedFormat('d/m/Y') }}
+                        </button>
+                        <form id="delete-date-{{ $date }}" method="POST" action="{{ route('schedules.delete.byDate') }}" class="hidden">
                             @csrf
                             <input type="hidden" name="date" value="{{ $date }}">
-                            <button type="submit" class="w-full bg-red-500 text-white py-1 rounded-lg hover:bg-red-600">
-                                Excluir Todos os Horários de {{ \Carbon\Carbon::parse($date)->translatedFormat('d/m/Y') }}
-                            </button>
                         </form>
 
                         <div class="schedule-list hidden mt-2">
                             @foreach($schedulesGroup as $schedule)
                                 <div class="flex justify-between items-center bg-gray-700 p-2 rounded-lg mb-2">
                                     <span class="text-white">{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</span>
-                                    <form method="POST" action="{{ route('schedules.delete.single') }}">
+                                    <button class="bg-red-500 px-3 py-1 rounded hover:bg-red-600 delete-btn"
+                                            data-form="delete-schedule-{{ $schedule->id }}" data-message="Tem certeza que deseja remover este horário?">
+                                        Remover
+                                    </button>
+                                    <form id="delete-schedule-{{ $schedule->id }}" method="POST" action="{{ route('schedules.delete.single') }}" class="hidden">
                                         @csrf
                                         <input type="hidden" name="schedule_id" value="{{ $schedule->id }}">
-                                        <button type="submit" class="bg-red-500 px-3 py-1 rounded hover:bg-red-600">
-                                            Remover
-                                        </button>
                                     </form>
                                 </div>
                             @endforeach
@@ -72,13 +75,57 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-96 text-white">
+            <h3 class="text-lg font-semibold mb-4">Confirmação</h3>
+            <p id="confirmMessage"></p>
+            <div class="mt-4 flex justify-end space-x-3">
+                <button id="cancelBtn" class="px-4 py-2 bg-gray-600 rounded-lg hover:bg-gray-700">Cancelar</button>
+                <button id="confirmBtn" class="px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.toggle-schedules').forEach(button => {
-                button.addEventListener('click', function () {
-                    this.nextElementSibling.nextElementSibling.classList.toggle('hidden');
-                });
+    document.addEventListener('DOMContentLoaded', function () {
+        // Alternar exibição dos horários
+        document.querySelectorAll('.toggle-schedules').forEach(button => {
+            button.addEventListener('click', function () {
+                let scheduleList = this.parentElement.querySelector('.schedule-list');
+                if (scheduleList) {
+                    scheduleList.classList.toggle('hidden');
+                }
             });
         });
-    </script>
+
+        // Modal de confirmação
+        const modal = document.getElementById('confirmModal');
+        const confirmMessage = document.getElementById('confirmMessage');
+        let formToSubmit = null;
+
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                confirmMessage.textContent = this.dataset.message;
+                formToSubmit = document.getElementById(this.dataset.form);
+                modal.classList.remove('hidden');
+            });
+        });
+
+        // Cancelar ação
+        document.getElementById('cancelBtn').addEventListener('click', function () {
+            modal.classList.add('hidden');
+            formToSubmit = null;
+        });
+
+        // Confirmar ação e submeter formulário
+        document.getElementById('confirmBtn').addEventListener('click', function () {
+            if (formToSubmit) {
+                formToSubmit.submit();
+            }
+            modal.classList.add('hidden');
+        });
+    });
+</script>
+
 </x-app-layout>

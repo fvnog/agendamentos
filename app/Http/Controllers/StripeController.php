@@ -28,12 +28,24 @@ class StripeController extends Controller
                 'description' => "Pagamento para " . $request->nomeCliente . " (CPF: " . $request->cpf . ")"
             ]);
     
-            // 🔹 Se o pagamento foi aprovado, reservar o horário e registrar o pagamento
             if ($charge->status === "succeeded") {
-                // 🔹 Captura os dados do frontend
                 $userId = $request->user_id;
                 $scheduleId = $request->schedule_id;
-                $services = $request->services; // JSON com serviços selecionados
+                $services = $request->services; // Dados do frontend
+    
+                // 🔹 Verifica se `services` é uma string JSON e converte para array se necessário
+                if (is_string($services)) {
+                    $services = json_decode($services, true);
+                }
+    
+                // 🔹 Garante que `$services` seja sempre um array válido
+                if (!is_array($services) || empty($services)) {
+                    Log::warning("⚠️ Nenhum serviço válido foi enviado no pagamento.", ['services' => $services]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Nenhum serviço válido foi enviado.'
+                    ], 400);
+                }
     
                 // 🔹 Verifica se o usuário está autenticado
                 $user = User::find($userId);
@@ -53,27 +65,28 @@ class StripeController extends Controller
                     ], 404);
                 }
     
-                // 🔹 Atualiza a reserva no BD
+                // 🔹 Atualiza a reserva no BD corretamente
                 $schedule->update([
                     'is_booked' => 1,
                     'client_id' => $user->id,
-                    'services' => json_encode($services)
+                    'services' => $services // Agora armazenando diretamente como array
                 ]);
     
                 // 🔹 Registra o pagamento na tabela `payments`
                 $payment = Payment::create([
                     'user_id' => $user->id,
                     'schedule_id' => $schedule->id,
-                    'type' => 'cartao', // Define como pagamento via cartão
+                    'type' => 'cartao',
                     'amount' => $valor / 100, // Converte de centavos para reais
-                    'txid' => $charge->id, // Stripe usa "id" como identificador único da transação
-                    'services' => json_encode($services)
+                    'txid' => $charge->id,
+                    'services' => $services // Armazena como array JSON corretamente
                 ]);
     
                 Log::info("✅ Pagamento registrado e horário reservado!", [
                     'payment_id' => $payment->id,
                     'schedule_id' => $scheduleId,
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
+                    'services' => $services
                 ]);
     
                 return response()->json([
@@ -93,6 +106,7 @@ class StripeController extends Controller
             ], 400);
         }
     }
+    
     
 
 }

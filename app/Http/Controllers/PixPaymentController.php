@@ -53,7 +53,7 @@ class PixPaymentController extends Controller
             // 🔹 Criar Cobrança Pix
             $devedor = [
                 'cnpj' => "12345678000195",
-                'nome' => "Empresa de Serviços SA"
+                'nome' => "GS Barbearia"
             ];
 
             $data = [

@@ -49,7 +49,10 @@
                             <tbody>
                                 @foreach($pagamentos as $pagamento)
                                     <tr class="border-b border-gray-700 hover:bg-gray-800 transition">
-                                        <td class="px-4 py-3">{{ $pagamento->user->name ?? 'Não cadastrado' }}</td>
+                                    <td class="px-4 py-3">
+    {{ $pagamento->user->name ?? ($pagamento->schedule->client_name ?? 'Não cadastrado') }}
+</td>
+
                                         <td class="px-4 py-3">R$ {{ number_format($pagamento->amount, 2, ',', '.') }}</td>
                                         <td class="px-4 py-3">
 @php

@@ -19,7 +19,8 @@ class Schedule extends Model
         'end_time',
         'is_booked',
         'is_locked',
-        'services'
+        'services',
+        'client_name'
     ];
 
     protected $casts = [

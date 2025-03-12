@@ -12,32 +12,32 @@ class AdminFinanceController extends Controller
     public function index()
     {
         $barbeiroId = Auth::id(); // Pega o ID do barbeiro logado
-
+    
         // 🔹 Filtra os pagamentos apenas do barbeiro logado
         $pagamentos = Payment::whereHas('schedule', function ($query) use ($barbeiroId) {
             $query->where('user_id', $barbeiroId);
-        })->get();
-
+        })->with('schedule')->get(); // Adiciona a relação 'schedule'
+    
         // 🔹 Valores arrecadados do barbeiro logado
         $totalGanhos = $pagamentos->sum('amount');
         $ganhosMes = $pagamentos->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])->sum('amount');
         $ganhosSemana = $pagamentos->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->sum('amount');
         $ganhosDia = $pagamentos->where('created_at', '>=', Carbon::today())->sum('amount');
-
+    
         // 🔹 Contagem de pagamentos
         $pagamentosRealizados = $pagamentos->count();
-
+    
         // 🔹 Serviços mais vendidos
         $servicosMaisVendidos = [];
-
+    
         foreach ($pagamentos as $pagamento) {
             $services = $pagamento->services;
-
+    
             // ✅ Se for uma string JSON, decodifica
             if (is_string($services)) {
                 $services = json_decode($services, true);
             }
-
+    
             // ✅ Se for um array válido, processa
             if (is_array($services) && !empty($services)) {
                 foreach ($services as $service) {
@@ -51,10 +51,9 @@ class AdminFinanceController extends Controller
                 }
             }
         }
-
-
+    
         arsort($servicosMaisVendidos); // Ordena do mais vendido para o menos vendido
-
+    
         return view('admin.payments.index', compact(
             'totalGanhos',
             'ganhosMes',
@@ -65,4 +64,5 @@ class AdminFinanceController extends Controller
             'pagamentos'
         ));
     }
+    
 }

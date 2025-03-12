@@ -1,29 +1,39 @@
 <x-layouts.client>
 
-    <div class="flex flex-col items-center justify-center min-h-screen bg-cover bg-center px-6 sm:px-12" style="background-image: url('{{ asset('storage/img/bg.png') }}');">
-        
-        <!-- Logo -->
-        <img src="{{ asset('storage/img/gs2.png') }}" alt="GS Barbearia" class="w-64 sm:w-80 md:w-96 mb-8 drop-shadow-lg">
-
-        <!-- Título -->
-        <h1 class="text-white text-center text-4xl sm:text-5xl font-bold leading-tight drop-shadow-md">
-            GS Barbearia: Estilo e Tradição para o Homem Moderno
-        </h1>
-
-        <!-- Descrição -->
-        <p class="text-white text-lg sm:text-xl max-w-4xl text-center mt-6 leading-relaxed drop-shadow-md">
-            Na GS Barbearia, cada corte é uma obra de arte, onde tradição e inovação se unem para um estilo impecável. 
-            Nossos barbeiros são especialistas em transformar seu visual. Venha viver essa experiência única! ✂️🔥
-        </p>
-
-<!-- Seção de Serviços Disponíveis -->
-<div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
-    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">💈 Serviços Disponíveis</h2>
+<div class="relative flex flex-col items-center justify-center bg-cover bg-center px-6 sm:px-6" style="background-image: url('{{ asset('storage/img/bg.png') }}');">
     
+    <!-- Logo -->
+    <img src="{{ asset('storage/img/gs2.png') }}" alt="GS Barbearia" class="w-64 sm:w-80 md:w-96 mb-6 drop-shadow-lg animate-fade-in">
+
+    <!-- Título -->
+    <h1 class="text-white text-center text-4xl sm:text-5xl font-bold leading-tight drop-shadow-md animate-fade-in">
+        Estilo e Tradição para o Homem Moderno
+    </h1>
+
+    <!-- Descrição -->
+    <p class="text-white text-lg sm:text-xl max-w-4xl text-center mt-4 leading-relaxed drop-shadow-md animate-fade-in">
+        Na GS Barbearia, cada corte é uma obra de arte. Nossos profissionais são especialistas em transformar o seu visual! ✂️🔥
+    </p>
+
+    <!-- Botões de Ação -->
+    <div class="mt-6 flex flex-col sm:flex-row gap-4 animate-slide-up">
+        <a href="#services" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
+            <i class="fas fa-info-circle"></i> Conheça a GS Barbearia
+        </a>
+        <a href="#schedule" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300 shadow-md">
+            <i class="fas fa-calendar-check"></i> Agendar Agora
+        </a>
+    </div>
+
+</div>
+
+<!-- Seção de Serviços -->
+<section id="services" class="mt-6 bg-white p-8 rounded-lg shadow-lg w-full max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">💈 Nossos Serviços</h2>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         @foreach($services as $service)
             <div class="bg-gray-100 p-5 rounded-lg shadow-md text-center flex flex-col items-center">
-                <!-- Exibir a imagem caso exista -->
                 @if($service->photo)
                     <img src="{{ asset('storage/' . $service->photo) }}" 
                         alt="{{ $service->name }}" 
@@ -36,15 +46,14 @@
             </div>
         @endforeach
     </div>
-</div>
+</section>
 
-
-
-<div class="mt-12 bg-white p-8 rounded-lg shadow-lg w-full max-w-8xl">
+<!-- Seção de Agendamento -->
+<section id="schedule" class="mt-16 bg-white p-8 rounded-lg shadow-lg w-full max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">📅 Agende seu Horário</h2>
 
     <!-- Filtros -->
     <div class="flex flex-col md:flex-row gap-4 mb-6 items-stretch md:items-end">
-
         <!-- Escolher Data -->
         <div class="w-full md:w-auto">
             <label for="date" class="block text-gray-700 font-semibold mb-1">Escolha uma data:</label>
@@ -69,16 +78,12 @@
 
         <!-- Botões de Ação -->
         <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
-            <!-- Botão de Filtrar -->
-            <button 
-                id="filter-btn" 
+            <button id="filter-btn" 
                 class="w-full md:w-auto px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300">
                 <i class="fas fa-search"></i> Filtrar
             </button>
 
-            <!-- Botão de Atualizar -->
-            <button 
-                id="refresh-btn" 
+            <button id="refresh-btn" 
                 class="w-full md:w-auto px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-300">
                 <i class="fas fa-sync-alt"></i> Atualizar
             </button>
@@ -89,7 +94,76 @@
     <div id="schedule-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <!-- Horários serão carregados aqui via AJAX -->
     </div>
+</section>
+
+<!-- Botão Flutuante "Agendar Agora" -->
+<a href="#schedule" class="fixed bottom-6 right-6 bg-green-600 text-white px-5 py-3 rounded-full shadow-lg text-lg font-bold hover:bg-green-700 transition duration-300 flex items-center gap-2">
+    <i class="fas fa-calendar-alt"></i> Agendar Agora
+</a>
+
+
+
+
+
+<!-- Modal de Reservar -->
+<div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg md:w-1/3 md:max-w-2xl overflow-y-auto max-h-[90vh]">
+        <h2 class="text-xl font-semibold mb-4 text-center md:text-left">Reservar Horário</h2>
+        <form method="POST" action="{{ route('client.payment.showPaymentPage') }}">
+            @csrf
+            <input type="hidden" name="schedule_id" id="modal-schedule-id">
+            <input type="hidden" name="start_time" id="modal-start-time">
+            <input type="hidden" name="end_time" id="modal-end-time">
+
+            <!-- Selecionar Barbeiro -->
+            <div class="mb-4">
+                <label for="barber" class="block text-gray-700">Escolha o barbeiro:</label>
+                <select name="barber_id" id="barber" class="w-full rounded-md border-gray-300 shadow-sm p-2">
+                    @foreach($barbers as $barber)
+                        <option value="{{ $barber->id }}">{{ $barber->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Selecionar Serviços -->
+            <div class="mb-4">
+                <label class="block text-gray-700">Escolha os serviços:</label>
+                <div id="services-container">
+                    @foreach($services as $service)
+                        <div class="flex items-center gap-2 mb-2">
+                            <input 
+                                type="checkbox" 
+                                name="services[]" 
+                                id="service-{{ $service->id }}" 
+                                value="{{ $service->id }}" 
+                                data-duration="{{ $service->duration }}" 
+                                data-price="{{ $service->price }}" 
+                                class="service-checkbox">
+                            <label for="service-{{ $service->id }}" class="flex-1">
+                                {{ $service->name }} ({{ $service->duration }} min) - R$ {{ number_format($service->price, 2, ',', '.') }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+                <p class="mt-2 text-sm text-gray-700">
+                    <strong>Total do Serviço:</strong> R$ <span id="total-price">0,00</span>
+                </p>
+                <p id="time-warning" class="text-red-500 hidden mt-2">O tempo total dos serviços selecionados ultrapassa o limite do horário disponível.</p>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex flex-col md:flex-row justify-end gap-2">
+                <button type="button" onclick="closeModal()" class="w-full md:w-auto px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">
+                    Cancelar
+                </button>
+                <button type="submit" id="confirm-button" class="w-full md:w-auto px-4 py-2 bg-green-700 text-white rounded-lg">
+                    Confirmar
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
+
 
 <script>
 $(document).ready(function () {
@@ -209,66 +283,6 @@ $(document).ready(function () {
 
 
 
-
-    </div>
-<!-- Modal de Reservar -->
-<div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg md:w-1/3 md:max-w-2xl overflow-y-auto max-h-[90vh]">
-        <h2 class="text-xl font-semibold mb-4 text-center md:text-left">Reservar Horário</h2>
-        <form method="POST" action="{{ route('client.payment.showPaymentPage') }}">
-            @csrf
-            <input type="hidden" name="schedule_id" id="modal-schedule-id">
-            <input type="hidden" name="start_time" id="modal-start-time">
-            <input type="hidden" name="end_time" id="modal-end-time">
-
-            <!-- Selecionar Barbeiro -->
-            <div class="mb-4">
-                <label for="barber" class="block text-gray-700">Escolha o barbeiro:</label>
-                <select name="barber_id" id="barber" class="w-full rounded-md border-gray-300 shadow-sm p-2">
-                    @foreach($barbers as $barber)
-                        <option value="{{ $barber->id }}">{{ $barber->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Selecionar Serviços -->
-            <div class="mb-4">
-                <label class="block text-gray-700">Escolha os serviços:</label>
-                <div id="services-container">
-                    @foreach($services as $service)
-                        <div class="flex items-center gap-2 mb-2">
-                            <input 
-                                type="checkbox" 
-                                name="services[]" 
-                                id="service-{{ $service->id }}" 
-                                value="{{ $service->id }}" 
-                                data-duration="{{ $service->duration }}" 
-                                data-price="{{ $service->price }}" 
-                                class="service-checkbox">
-                            <label for="service-{{ $service->id }}" class="flex-1">
-                                {{ $service->name }} ({{ $service->duration }} min) - R$ {{ number_format($service->price, 2, ',', '.') }}
-                            </label>
-                        </div>
-                    @endforeach
-                </div>
-                <p class="mt-2 text-sm text-gray-700">
-                    <strong>Total do Serviço:</strong> R$ <span id="total-price">0,00</span>
-                </p>
-                <p id="time-warning" class="text-red-500 hidden mt-2">O tempo total dos serviços selecionados ultrapassa o limite do horário disponível.</p>
-            </div>
-
-            <!-- Botões -->
-            <div class="flex flex-col md:flex-row justify-end gap-2">
-                <button type="button" onclick="closeModal()" class="w-full md:w-auto px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">
-                    Cancelar
-                </button>
-                <button type="submit" id="confirm-button" class="w-full md:w-auto px-4 py-2 bg-green-700 text-white rounded-lg">
-                    Confirmar
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 
     <script>
          document.addEventListener('DOMContentLoaded', () => {
