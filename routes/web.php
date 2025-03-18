@@ -14,6 +14,7 @@ use App\Http\Controllers\PixPaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminScheduleController;
 use App\Http\Controllers\AdminFinanceController;
+use App\Http\Controllers\PixAccountController;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
@@ -67,6 +68,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('appointments', AppointmentController::class);
     Route::resource('users', UserController::class);
+
+    Route::get('/pix-account/edit', [PixAccountController::class, 'edit'])->name('pix_account.edit');
+    Route::put('/pix-account/update', [PixAccountController::class, 'update'])->name('pix_account.update');
 
     
     Route::get('/schedules/create', [ScheduleController::class, 'create'])->name('schedules.create');

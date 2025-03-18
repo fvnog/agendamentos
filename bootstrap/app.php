@@ -3,6 +3,11 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Dotenv\Dotenv;
+
+// 🔹 Carregar variáveis do .env manualmente
+$dotenv = Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->safeLoad();
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

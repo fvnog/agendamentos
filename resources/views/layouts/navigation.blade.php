@@ -58,6 +58,17 @@
                     </a>
                 </li>
 
+                <!-- Configurar Conta Pix -->
+<li>
+    <a href="{{ route('pix_account.edit') }}" 
+    class="relative flex flex-row items-center h-12 focus:outline-none px-6 transition
+    {{ request()->routeIs('pix_account.edit') ? 'bg-gray-800 text-yellow-400 border-l-4 border-yellow-400' : 'text-gray-300 hover:text-yellow-400 border-l-4 border-transparent hover:border-yellow-400 hover:bg-gray-800' }}">
+        <i class="fas fa-qrcode w-5 h-5"></i>
+        <span class="ml-3 text-sm font-semibold">Conta Pix</span>
+    </a>
+</li>
+
+
                 <!-- Ver Serviços -->
                 <li>
                     <a href="{{ route('services.index') }}" 

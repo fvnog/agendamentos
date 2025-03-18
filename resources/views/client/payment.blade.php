@@ -160,120 +160,132 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 
 <!-- Script para Gerar QR Code, Copiar Código e Contador -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
     const tabPix = document.getElementById("tab-pix");
-const tabCartao = document.getElementById("tab-cartao");
-const pixArea = document.getElementById("pix-payment-area");
-const cartaoArea = document.getElementById("cartao-payment-area");
-const totalPriceElements = document.querySelectorAll("[id='total-price']"); // Pega todos os elementos com ID 'total-price'
-const cardFeeWarning = document.getElementById("card-fee-warning");
+    const tabCartao = document.getElementById("tab-cartao");
+    const pixArea = document.getElementById("pix-payment-area");
+    const cartaoArea = document.getElementById("cartao-payment-area");
+    const totalPriceElements = document.querySelectorAll("[id='total-price']");
+    const cardFeeWarning = document.getElementById("card-fee-warning");
 
-let originalPrice = parseFloat("{{ $totalPrice }}".replace(",", ".")); // Preço original (sem taxa)
+    let originalPrice = parseFloat("{{ $totalPrice }}".replace(",", "."));
 
-// 🔹 Função para calcular o valor a ser cobrado garantindo valor líquido
-function calcularPrecoComTaxa(valorLiquido) {
-    let taxaPercentual = 0.0399; // 3,99%
-    let taxaFixa = 0.39; // R$ 0,39 fixo
-
-    return ((valorLiquido + taxaFixa) / (1 - taxaPercentual));
-}
-
-// 🔹 Atualizar ambos os preços ao mesmo tempo
-function atualizarPreco(valor) {
-    totalPriceElements.forEach(element => {
-        element.textContent = valor.toFixed(2).replace(".", ",");
-    });
-}
-
-// 🔹 Alternar entre os métodos de pagamento e atualizar preço
-function togglePaymentMethod(selected) {
-    if (selected === "pix") {
-        pixArea.classList.remove("hidden");
-        cartaoArea.classList.add("hidden");
-        cardFeeWarning.classList.add("hidden"); // Esconder aviso da taxa
-
-        tabPix.classList.add("border-green-500", "bg-green-100", "border-b-4");
-        tabCartao.classList.remove("border-blue-500", "bg-blue-100", "border-b-4");
-
-        atualizarPreco(originalPrice); // Restaurar preço original
-
-    } else {
-        cartaoArea.classList.remove("hidden");
-        pixArea.classList.add("hidden");
-        cardFeeWarning.classList.remove("hidden"); // Exibir aviso da taxa
-
-        tabCartao.classList.add("border-blue-500", "bg-blue-100", "border-b-4");
-        tabPix.classList.remove("border-green-500", "bg-green-100", "border-b-4");
-
-        let valorCobrado = calcularPrecoComTaxa(originalPrice);
-        atualizarPreco(valorCobrado); // Atualizar os dois preços com a taxa do cartão
+    // 🔹 Função para calcular o valor com taxa do cartão
+    function calcularPrecoComTaxa(valorLiquido) {
+        let taxaPercentual = 0.0399; // 3,99%
+        let taxaFixa = 0.39; // R$ 0,39 fixo
+        return ((valorLiquido + taxaFixa) / (1 - taxaPercentual));
     }
-}
 
-// 🔹 Evento de clique para alternar
-tabPix.addEventListener("click", function () {
-    togglePaymentMethod("pix");
-    localStorage.setItem("selectedPaymentMethod", "pix");
-});
-
-tabCartao.addEventListener("click", function () {
-    togglePaymentMethod("credit_card");
-    localStorage.setItem("selectedPaymentMethod", "credit_card");
-});
-
-// 🔹 Ativar o último método de pagamento selecionado (caso tenha sido salvo)
-const savedPaymentMethod = localStorage.getItem("selectedPaymentMethod");
-togglePaymentMethod(savedPaymentMethod === "credit_card" ? "credit_card" : "pix");
-
-
-    // 🔹 Evento para Gerar QR Code PIX
-    document.getElementById("pix-btn").addEventListener("click", function () {
-        let valor = originalPrice;
-        let nome = "{{ auth()->user()->name ?? 'Nome Fictício' }}";
-        let cpf = "123.456.789-00";
-
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Gerando...';
-
-        fetch("/gerar-pix", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-            body: JSON.stringify({ valor, nome, cpf })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log("✅ PIX criado com sucesso:", data);
-
-                // Exibir QR Code
-                document.getElementById("pix-qrcode").innerHTML = "";
-                new QRCode(document.getElementById("pix-qrcode"), { text: data.location, width: 200, height: 200 });
-
-                // Preencher código Pix Copia e Cola
-                document.getElementById("pix-code").value = data.pix_copiaecola;
-
-                // Armazenar TXID para verificação
-                document.getElementById("pix-txid").value = data.txid;
-
-                // Iniciar Contagem Regressiva de 5 minutos
-                startCountdown(300);
-            } else {
-                alert("Erro ao gerar QR Code Pix.");
-            }
-        })
-        .catch(() => alert("Erro ao conectar com o servidor."))
-        .finally(() => {
-            this.disabled = false;
-            this.innerHTML = '<i class="fa-brands fa-pix mr-2"></i> Gerar QR Code';
+    // 🔹 Atualiza o preço na interface
+    function atualizarPreco(valor) {
+        totalPriceElements.forEach(element => {
+            element.textContent = valor.toFixed(2).replace(".", ",");
         });
+    }
+
+    // 🔹 Alternar método de pagamento
+    function togglePaymentMethod(selected) {
+        if (selected === "pix") {
+            pixArea.classList.remove("hidden");
+            cartaoArea.classList.add("hidden");
+            cardFeeWarning.classList.add("hidden");
+
+            tabPix.classList.add("border-green-500", "bg-green-100", "border-b-4");
+            tabCartao.classList.remove("border-blue-500", "bg-blue-100", "border-b-4");
+
+            atualizarPreco(originalPrice);
+        } else {
+            cartaoArea.classList.remove("hidden");
+            pixArea.classList.add("hidden");
+            cardFeeWarning.classList.remove("hidden");
+
+            tabCartao.classList.add("border-blue-500", "bg-blue-100", "border-b-4");
+            tabPix.classList.remove("border-green-500", "bg-green-100", "border-b-4");
+
+            let valorCobrado = calcularPrecoComTaxa(originalPrice);
+            atualizarPreco(valorCobrado);
+        }
+    }
+
+    // 🔹 Alternar métodos de pagamento
+    tabPix.addEventListener("click", function () {
+        togglePaymentMethod("pix");
+        localStorage.setItem("selectedPaymentMethod", "pix");
     });
 
-    // 🔹 Evento para Copiar Código PIX
+    tabCartao.addEventListener("click", function () {
+        togglePaymentMethod("credit_card");
+        localStorage.setItem("selectedPaymentMethod", "credit_card");
+    });
+
+    // 🔹 Recuperar último método salvo
+    const savedPaymentMethod = localStorage.getItem("selectedPaymentMethod");
+    togglePaymentMethod(savedPaymentMethod === "credit_card" ? "credit_card" : "pix");
+
+    // 🔹 Evento para gerar PIX
+    document.getElementById("pix-btn").addEventListener("click", function () {
+    let valor = parseFloat(document.getElementById("total-price").textContent.trim().replace(",", ".")).toFixed(2);
+    let nome = "{{ auth()->user()->name ?? 'Nome Fictício' }}";
+    let cpf = "123.456.789-00"; // Substituir pelo CPF correto.
+
+    this.disabled = true;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Gerando...';
+
+    console.log("🔹 Enviando Pix com os seguintes dados:", { valor, nome, cpf });
+
+    fetch("/gerar-pix", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+        },
+        body: JSON.stringify({ valor, nome, cpf })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("✅ PIX criado com sucesso:", data);
+
+            // **Verifica se o campo `location` está presente**
+            let qrCodeData = data.location ? data.location : data.pix_copiaecola;
+
+            // **Gerar QR Code sem erro de tamanho**
+            document.getElementById("pix-qrcode").innerHTML = ""; // Limpar QR Code anterior
+            new QRCode(document.getElementById("pix-qrcode"), {
+                text: qrCodeData, // Aqui usamos a URL curta do Banco do Brasil
+                width: 200,
+                height: 200
+            });
+
+            // Preencher código Pix Copia e Cola
+            document.getElementById("pix-code").value = data.pix_copiaecola;
+            document.getElementById("pix-txid").value = data.txid;
+
+            // Iniciar Contagem Regressiva de 5 minutos
+            startCountdown(300);
+        } else {
+            alert("❌ Erro ao gerar QR Code Pix: " + data.message);
+        }
+    })
+    .catch((error) => {
+        console.error("❌ Erro ao conectar com o servidor:", error);
+        alert("❌ Erro ao conectar com o servidor.");
+    })
+    .finally(() => {
+        document.getElementById("pix-btn").disabled = false;
+        document.getElementById("pix-btn").innerHTML = '<i class="fa-brands fa-pix mr-2"></i> Gerar QR Code';
+    });
+});
+
+
+
+    // 🔹 Copiar Código PIX
     document.getElementById("copy-pix").addEventListener("click", function () {
         let pixCode = document.getElementById("pix-code");
         pixCode.select();
@@ -281,7 +293,7 @@ togglePaymentMethod(savedPaymentMethod === "credit_card" ? "credit_card" : "pix"
         alert("✅ Código Pix copiado!");
     });
 
-    // 🔹 Função para Contagem Regressiva
+    // 🔹 Função de contagem regressiva
     function startCountdown(seconds) {
         let timerDisplay = document.getElementById("pix-expiration");
         let countdown = setInterval(() => {
@@ -298,6 +310,7 @@ togglePaymentMethod(savedPaymentMethod === "credit_card" ? "credit_card" : "pix"
         }, 1000);
     }
 });
+
 </script>
 
 
@@ -456,39 +469,6 @@ $("#btn-voltar-inicio").on("click", function () {
     window.location.href = "{{ route('client.schedule.index') }}";
 });
 
-
-    // Gerar PIX
-    $('#pix-btn').on('click', function () {
-        let valor = {{ $totalPrice }};
-        let nome = "{{ auth()->user()->name ?? 'Nome Fictício' }}";
-        let cpf = "123.456.789-00";
-
-        $('#pix-btn').attr('disabled', true);
-        $('#loading').removeClass('hidden');
-
-        $.ajax({
-            url: "/gerar-pix",
-            type: "POST",
-            data: { valor: valor, nome: nome, cpf: cpf, _token: "{{ csrf_token() }}" },
-            success: function (response) {
-                if (response.success) {
-                    $('#pix-payment-area').removeClass('hidden');
-                    $('#pix-qrcode').empty();
-                    new QRCode(document.getElementById("pix-qrcode"), { text: response.location, width: 200, height: 200 });
-                    $('#pix-code').val(response.pix_copiaecola);
-                    $('#pix-txid').val(response.txid);
-                    startCountdown(300);
-                } else {
-                    alert('Erro ao gerar QR Code Pix.');
-                }
-            },
-            error: function () { alert('Erro ao conectar com o servidor.'); },
-            complete: function () {
-                $('#pix-btn').attr('disabled', false);
-                $('#loading').addClass('hidden');
-            }
-        });
-    });
 
 
     // Confirmação de pagamento PIX
