@@ -16,9 +16,13 @@ class PixAccount extends Model
         'bank_name',
         'pix_key',
         'pix_key_type',
-        'bb_client_id',       // 🔹 Novo campo para o BB
-        'bb_client_secret',   // 🔹 Novo campo para o BB
-        'bb_gw_app_key',      // 🔹 Novo campo para o BB
+        'bb_client_id',        // 🔹 Banco do Brasil - Client ID
+        'bb_client_secret',    // 🔹 Banco do Brasil - Client Secret
+        'bb_gw_app_key',       // 🔹 Banco do Brasil - Gateway App Key
+        'sicoob_client_id',    // 🔹 Sicoob - Client ID
+        'sicoob_access_token', // 🔹 Sicoob - Access Token
+        'created_at',
+        'updated_at',
     ];
 
     public function user()

@@ -3,102 +3,74 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Stripe\Stripe;
-use Stripe\Charge;
 use App\Models\User;
 use App\Models\Schedule;
+use App\Models\Payment;
+use App\Models\StripeAccount;
+use App\Services\Payments\PaymentServiceFactory;
 use Illuminate\Support\Facades\Log;
-use App\Models\Payment; // Importa o modelo de pagamentos
 
 class StripeController extends Controller
 {
-
-
     public function checkout(Request $request)
     {
-        Stripe::setApiKey(config('services.stripe.secret'));
-    
         try {
-            $valor = (int) $request->valor; // Certificar-se de que está em centavos
-    
-            $charge = Charge::create([
-                'amount' => $valor,
-                'currency' => 'brl',
-                'source' => $request->stripeToken,
-                'description' => "Pagamento para " . $request->nomeCliente . " (CPF: " . $request->cpf . ")"
-            ]);
-    
-            if ($charge->status === "succeeded") {
-                $userId = $request->user_id;
-                $scheduleId = $request->schedule_id;
-                $services = $request->services; // Dados do frontend
-    
-                // 🔹 Verifica se `services` é uma string JSON e converte para array se necessário
-                if (is_string($services)) {
-                    $services = json_decode($services, true);
-                }
-    
-                // 🔹 Garante que `$services` seja sempre um array válido
-                if (!is_array($services) || empty($services)) {
-                    Log::warning("⚠️ Nenhum serviço válido foi enviado no pagamento.", ['services' => $services]);
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nenhum serviço válido foi enviado.'
-                    ], 400);
-                }
-    
-                // 🔹 Verifica se o usuário está autenticado
-                $user = User::find($userId);
-                if (!$user) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Usuário não encontrado.'
-                    ], 403);
-                }
-    
-                // 🔹 Busca o horário no BD
-                $schedule = Schedule::find($scheduleId);
-                if (!$schedule) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Horário não encontrado.'
-                    ], 404);
-                }
-    
-                // 🔹 Atualiza a reserva no BD corretamente
-                $schedule->update([
-                    'is_booked' => 1,
-                    'client_id' => $user->id,
-                    'services' => $services // Agora armazenando diretamente como array
-                ]);
-    
-                // 🔹 Registra o pagamento na tabela `payments`
-                $payment = Payment::create([
-                    'user_id' => $user->id,
-                    'schedule_id' => $schedule->id,
-                    'type' => 'cartao',
-                    'amount' => $valor / 100, // Converte de centavos para reais
-                    'txid' => $charge->id,
-                    'services' => $services // Armazena como array JSON corretamente
-                ]);
-    
-                Log::info("✅ Pagamento registrado e horário reservado!", [
-                    'payment_id' => $payment->id,
-                    'schedule_id' => $scheduleId,
-                    'user_id' => $user->id,
-                    'services' => $services
-                ]);
-    
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Pagamento confirmado e horário reservado!',
-                    'status' => $charge->status
-                ]);
+            Log::info("🔹 Iniciando pagamento via Stripe", ['user_id' => $request->user_id]);
+
+            // 🔹 Buscar a conta Stripe do usuário
+            $stripeAccount = StripeAccount::where('user_id', $request->user_id)->first();
+            if (!$stripeAccount) {
+                Log::warning("⚠️ Conta Stripe não encontrada!", ['user_id' => $request->user_id]);
+                return response()->json(['success' => false, 'message' => 'Conta Stripe não configurada.'], 400);
             }
-    
-            return response()->json(['success' => false, 'message' => 'Pagamento não concluído.']);
+
+            // 🔹 Criar a instância do serviço correto usando o Factory
+            $paymentService = PaymentServiceFactory::create($stripeAccount);
+
+            // 🔹 Processar pagamento
+            $valor = (int) $request->valor; // Converter para centavos
+            $description = "Pagamento para " . $request->nomeCliente . " (CPF: " . $request->cpf . ")";
+
+            $paymentResponse = $paymentService->processPayment($valor, $request->stripeToken, $description);
+
+            if (!$paymentResponse['success']) {
+                return response()->json(['success' => false, 'message' => $paymentResponse['message']], 400);
+            }
+
+            // 🔹 Reservar horário
+            $schedule = Schedule::find($request->schedule_id);
+            if (!$schedule) {
+                return response()->json(['success' => false, 'message' => 'Horário não encontrado.'], 404);
+            }
+
+            $schedule->update([
+                'is_booked' => 1,
+                'client_id' => $request->user_id,
+                'services' => $request->services
+            ]);
+
+            // 🔹 Registrar pagamento
+            Payment::create([
+                'user_id' => $request->user_id,
+                'schedule_id' => $schedule->id,
+                'type' => 'cartao',
+                'amount' => $valor / 100, // Converter para reais
+                'txid' => $paymentResponse['txid'],
+                'services' => $request->services
+            ]);
+
+            Log::info("✅ Pagamento via Stripe confirmado e horário reservado!", [
+                'txid' => $paymentResponse['txid'],
+                'user_id' => $request->user_id
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pagamento confirmado e horário reservado!',
+                'status' => $paymentResponse['status']
+            ]);
         } catch (\Exception $e) {
-            Log::error("❌ Erro no pagamento Stripe", ['exception' => $e->getMessage()]);
+            Log::error("❌ Erro no pagamento Stripe", ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Erro no pagamento!',
@@ -106,7 +78,4 @@ class StripeController extends Controller
             ], 400);
         }
     }
-    
-    
-
 }

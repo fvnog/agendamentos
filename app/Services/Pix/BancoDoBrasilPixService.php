@@ -26,10 +26,11 @@ class BancoDoBrasilPixService implements PixInterface
             $clientId = $this->pixAccount->bb_client_id;
             $clientSecret = $this->pixAccount->bb_client_secret;
             $gwDevAppKey = $this->pixAccount->bb_gw_app_key;
-            $certPath = storage_path($this->pixAccount->bb_cert_path ?? 'certificados/bb-cert.pem');
+            $certPath = storage_path(env('BB_CERT_PATH'));
 
-            $tokenUrl = "https://oauth.bb.com.br/oauth/token";
-            $pixUrl = "https://api.bb.com.br/pix/v2/cob";
+            $tokenUrl = env('BB_TOKEN_URL');
+            $pixUrl = env('BB_PIX_URL');
+
 
             // 🔹 Obtendo a chave PIX do usuário
             $chavePix = $this->pixAccount->pix_key;
@@ -114,10 +115,10 @@ class BancoDoBrasilPixService implements PixInterface
             $clientId = $this->pixAccount->bb_client_id;
             $clientSecret = $this->pixAccount->bb_client_secret;
             $gwDevAppKey = $this->pixAccount->bb_gw_app_key;
-            $certPath = storage_path($this->pixAccount->bb_cert_path ?? 'certificados/bb-cert.pem');
+            $certPath = storage_path(env('BB_CERT_PATH'));
 
-            $tokenUrl = "https://oauth.bb.com.br/oauth/token";
-            $pixUrl = "https://api.bb.com.br/pix/v2/cob/{$txid}";
+            $tokenUrl = env('BB_TOKEN_URL');
+            $pixUrl = env('BB_PIX_URL') . "/{$txid}";
 
             // 🔹 Obtendo Token de Acesso
             $tokenResponse = Http::asForm()->withOptions(['verify' => $certPath])

@@ -15,6 +15,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminScheduleController;
 use App\Http\Controllers\AdminFinanceController;
 use App\Http\Controllers\PixAccountController;
+use App\Http\Controllers\StripeAccountController;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
@@ -72,6 +73,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/pix-account/edit', [PixAccountController::class, 'edit'])->name('pix_account.edit');
     Route::put('/pix-account/update', [PixAccountController::class, 'update'])->name('pix_account.update');
 
+    Route::get('/admin/stripe-account/edit', [StripeAccountController::class, 'edit'])->name('stripe_account.edit');
+    Route::put('/admin/stripe-account/update', [StripeAccountController::class, 'update'])->name('stripe_account.update');
     
     Route::get('/schedules/create', [ScheduleController::class, 'create'])->name('schedules.create');
     Route::post('/schedules/store', [ScheduleController::class, 'store'])->name('schedules.store');
