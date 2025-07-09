@@ -529,7 +529,7 @@ class UrlGenerator implements UrlGeneratorContract
      */
     public function toRoute($route, $parameters, $absolute)
     {
-        $parameters = (new Collection(Arr::wrap($parameters)))->map(function ($value, $key) use ($route) {
+        $parameters = Collection::wrap($parameters)->map(function ($value, $key) use ($route) {
             return $value instanceof UrlRoutable && $route->bindingFieldFor($key)
                     ? $value->{$route->bindingFieldFor($key)}
                     : $value;
@@ -743,16 +743,40 @@ class UrlGenerator implements UrlGeneratorContract
     }
 
     /**
+     * Set the URL origin for all generated URLs.
+     *
+     * @param  string|null  $root
+     * @return void
+     */
+    public function useOrigin(?string $root)
+    {
+        $this->forceRootUrl($root);
+    }
+
+    /**
      * Set the forced root URL.
      *
      * @param  string|null  $root
      * @return void
+     *
+     * @deprecated Use useOrigin
      */
     public function forceRootUrl($root)
     {
         $this->forcedRoot = $root ? rtrim($root, '/') : null;
 
         $this->cachedRoot = null;
+    }
+
+    /**
+     * Set the URL origin for all generated asset URLs.
+     *
+     * @param  string|null  $root
+     * @return void
+     */
+    public function useAssetOrigin(?string $root)
+    {
+        $this->assetRoot = $root ? rtrim($root, '/') : null;
     }
 
     /**

@@ -5,11 +5,19 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
+    "repositories": [
+  {
+    "type": "vcs",
+    "url": "https://github.com/mercadopago/sdk-php"
+  }
+],
+
     "require": {
         "php": "^8.2",
         "bacon/bacon-qr-code": "^3.0",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
+        "mercadopago/dx-php": "3.5.1",
         "stripe/stripe-php": "^16.6"
     },
     "require-dev": {

@@ -23,6 +23,18 @@ use App\Models\Schedule;
 use App\Http\Controllers\FixedScheduleController;
 use App\Http\Controllers\DeleteScheduleController;
 
+Route::post('/payment/checkout', [PaymentController::class, 'showPaymentPage'])->name('client.payment.showPaymentPage');
+
+
+Route::get('/payment/check-status', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
+
+
+Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment/failure', [PaymentController::class, 'failure'])->name('payment.failure');
+Route::get('/payment/pending', [PaymentController::class, 'pending'])->name('payment.pending');
+Route::post('/webhook/mercadopago', [PaymentController::class, 'webhook'])->name('payment.webhook');
+
+
 Route::get('/agendamentos-whatsapp-bot-3478fhjdks', function (Request $request) {
     $date = $request->input('date', Carbon::today()->toDateString()); // Captura a data da URL ou usa a atual
 
@@ -127,7 +139,7 @@ Route::post('/schedule/check-availability', [ScheduleController::class, 'checkAv
 
 // routes/web.php
 
-Route::get('/pagamentos/{scheduleId}', [PaymentController::class, 'showPaymentPage'])->name('client.payment');
-Route::post('/payment', [PaymentController::class, 'showPaymentPage'])->name('client.payment.showPaymentPage');
+//Route::get('/pagamentos/{scheduleId}', [PaymentController::class, 'showPaymentPage'])->name('client.payment');
+//Route::post('/payment', [PaymentController::class, 'showPaymentPage'])->name('client.payment.showPaymentPage');
 
 require __DIR__.'/auth.php';
