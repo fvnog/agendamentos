@@ -153,43 +153,50 @@ public function success(Request $request)
 
 public function webhook(Request $request)
 {
-    try {
-        $paymentId = $request->input('data.id');
-        \Log::info('📩 Webhook recebido do Mercado Pago', ['payment_id' => $paymentId]);
+    \Log::info('📥 Webhook recebido do Mercado Pago', ['payload' => $request->all()]);
 
-        if (!$paymentId) {
-            return response()->json(['message' => 'ID não fornecido.'], 400);
-        }
+    $action = $request->input('action');
+    $type = $request->input('type');
+    $paymentId = $request->input('data.id');
 
-        MercadoPagoConfig::setAccessToken(env('MERCADOPAGO_ACCESS_TOKEN'));
+    if ($action === 'payment.updated' && $type === 'payment') {
+        try {
+            MercadoPagoConfig::setAccessToken(env('MERCADOPAGO_ACCESS_TOKEN'));
 
-        $client = new \MercadoPago\Client\Payment\PaymentClient();
-        $payment = $client->get($paymentId);
+            $client = new \MercadoPago\Client\Payment\PaymentClient();
+            $payment = $client->get($paymentId);
 
-        if ($payment->status === 'approved') {
-            $scheduleId = $payment->metadata['schedule_id'] ?? null;
+            if ($payment->status === 'approved') {
+                $externalReference = $payment->external_reference; // ex: reserva_123abc
+                \Log::info("✅ Pagamento aprovado via webhook", ['payment_id' => $paymentId, 'ref' => $externalReference]);
 
-            if ($scheduleId) {
-                $schedule = \App\Models\Schedule::find($scheduleId);
+                // Extrai o ID do agendamento
+                if (str_starts_with($externalReference, 'reserva_')) {
+                    $scheduleId = str_replace('reserva_', '', $externalReference);
+                    $schedule = Schedule::find($scheduleId);
 
-                if ($schedule && !$schedule->is_booked) {
-                    $schedule->update([
-                        'is_booked' => 1,
-                        'is_locked' => 0,
-                        'locked_until' => null,
-                    ]);
+                    if ($schedule && !$schedule->is_booked) {
+                        $schedule->update([
+                            'is_booked' => 1,
+                            'is_locked' => 0,
+                            'locked_until' => null,
+                        ]);
 
-                    \Log::info('📅 Horário reservado via webhook!', ['schedule_id' => $scheduleId]);
+                        \Log::info('📅 Horário reservado com sucesso via webhook', ['schedule_id' => $scheduleId]);
+                    }
                 }
             }
-        }
 
-        return response()->json(['message' => 'Webhook processado com sucesso.']);
-    } catch (\Exception $e) {
-        \Log::error('❌ Erro ao processar webhook', ['error' => $e->getMessage()]);
-        return response()->json(['message' => 'Erro interno'], 500);
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('❌ Erro ao processar webhook do Mercado Pago', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Erro interno'], 500);
+        }
     }
+
+    return response()->json(['success' => true]);
 }
+
 
 
     public function failure()
