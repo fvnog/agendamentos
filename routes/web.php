@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use App\Models\Schedule;
 use App\Http\Controllers\FixedScheduleController;
 use App\Http\Controllers\DeleteScheduleController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 Route::post('/payment/checkout', [PaymentController::class, 'showPaymentPage'])->name('client.payment.showPaymentPage');
 
@@ -32,7 +33,11 @@ Route::get('/payment/check-status', [PaymentController::class, 'checkStatus'])->
 Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
 Route::get('/payment/failure', [PaymentController::class, 'failure'])->name('payment.failure');
 Route::get('/payment/pending', [PaymentController::class, 'pending'])->name('payment.pending');
-Route::post('/webhook/mercadopago', [PaymentController::class, 'webhook'])->name('payment.webhook');
+
+
+Route::post('/webhook/mercadopago', [PaymentController::class, 'webhook'])
+    ->withoutMiddleware([VerifyCsrfToken::class]) // <- ESSA LINHA É ESSENCIAL
+    ->name('payment.webhook');
 
 
 Route::get('/agendamentos-whatsapp-bot-3478fhjdks', function (Request $request) {
