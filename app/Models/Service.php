@@ -9,10 +9,8 @@ class Service extends Model
 {
     use HasFactory;
 
-    /**
-     * Os atributos que podem ser preenchidos em massa.
-     */
     protected $fillable = [
+        'id',       // 🔹 agora explícito
         'name',
         'duration',
         'price',

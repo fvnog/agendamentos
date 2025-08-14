@@ -76,23 +76,36 @@
         $services = []; // Se não for array, inicializa como array vazio
     }
 @endphp
-
 @if(count($services) > 0)
     <p class="text-white font-semibold mt-3">Serviços:</p>
     <ul class="list-disc text-gray-300 text-sm text-left pl-4">
         @foreach($services as $service)
             @php
-                // Garantir que cada item dentro do array seja um array associativo válido
+                // Se vier só o ID (ex: "9"), transforma em array ['id' => 9]
                 if (!is_array($service)) {
-                    continue; // Pula qualquer item que não seja um array
+                    $service = ['id' => (int) $service];
+                }
+
+                // Se não tiver nome mas tiver id, busca no banco
+                if (empty($service['name']) && !empty($service['id'])) {
+                    $serviceModel = \App\Models\Service::find($service['id']);
+                    if ($serviceModel) {
+                        $service['name'] = $serviceModel->name;
+                    }
                 }
             @endphp
-            <li class="mt-2"><i class="fas fa-cut"></i> {{ $service['name'] ?? 'Serviço Desconhecido' }}</li>
+
+            <li class="mt-2">
+                <i class="fas fa-cut"></i>
+                {{ $service['name'] ?? 'Serviço Desconhecido' }}
+            </li>
         @endforeach
     </ul>
 @else
     <p class="text-gray-400 mt-2">Nenhum serviço cadastrado</p>
 @endif
+
+
                 </div>
             @else
                 <!-- Quando o horário está disponível -->
