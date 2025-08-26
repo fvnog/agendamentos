@@ -104,65 +104,263 @@
 
 
 
-
 <!-- Modal de Reservar -->
-<div id="reservation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg md:w-1/3 md:max-w-2xl overflow-y-auto max-h-[90vh]">
-        <h2 class="text-xl font-semibold mb-4 text-center md:text-left">Reservar Horário</h2>
-        <form method="POST" action="{{ route('client.payment.showPaymentPage') }}">
-            @csrf
-            <input type="hidden" name="schedule_id" id="modal-schedule-id">
-            <input type="hidden" name="start_time" id="modal-start-time">
-            <input type="hidden" name="end_time" id="modal-end-time">
-
-            <!-- Selecionar Barbeiro -->
-            <div class="mb-4">
-                <label for="barber" class="block text-gray-700">Escolha o barbeiro:</label>
-                <select name="barber_id" id="barber" class="w-full rounded-md border-gray-300 shadow-sm p-2">
-                    @foreach($barbers as $barber)
-                        <option value="{{ $barber->id }}">{{ $barber->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Selecionar Serviços -->
-            <div class="mb-4">
-                <label class="block text-gray-700">Escolha os serviços:</label>
-                <div id="services-container">
-                    @foreach($services as $service)
-                        <div class="flex items-center gap-2 mb-2">
-                            <input 
-                                type="checkbox" 
-                                name="services[]" 
-                                id="service-{{ $service->id }}" 
-                                value="{{ $service->id }}" 
-                                data-duration="{{ $service->duration }}" 
-                                data-price="{{ $service->price }}" 
-                                class="service-checkbox">
-                            <label for="service-{{ $service->id }}" class="flex-1">
-                                {{ $service->name }} ({{ $service->duration }} min) - R$ {{ number_format($service->price, 2, ',', '.') }}
-                            </label>
-                        </div>
-                    @endforeach
-                </div>
-                <p class="mt-2 text-sm text-gray-700">
-                    <strong>Total do Serviço:</strong> R$ <span id="total-price">0,00</span>
-                </p>
-                <p id="time-warning" class="text-red-500 hidden mt-2">O tempo total dos serviços selecionados ultrapassa o limite do horário disponível.</p>
-            </div>
-
-            <!-- Botões -->
-            <div class="flex flex-col md:flex-row justify-end gap-2">
-                <button type="button" onclick="closeModal()" class="w-full md:w-auto px-4 py-2 bg-gray-300 text-gray-800 rounded-lg">
-                    Cancelar
-                </button>
-                <button type="submit" id="confirm-button" class="w-full md:w-auto px-4 py-2 bg-green-700 text-white rounded-lg">
-                    Confirmar
-                </button>
-            </div>
-        </form>
+<div id="reservation-modal" class="hidden fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+    
+    <!-- Cabeçalho fixo -->
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-900">Reservar Horário</h2>
+      <button type="button" onclick="closeModal()" class="p-2 rounded-full hover:bg-gray-100 transition">
+        <i class="fas fa-times text-gray-600"></i>
+      </button>
     </div>
+
+    <!-- Conteúdo com scroll -->
+    <div class="flex-1 overflow-y-auto p-6">
+      <form method="POST" action="{{ route('client.payment.showPaymentPage') }}" class="flex flex-col h-full">
+        @csrf
+        <input type="hidden" name="schedule_id" id="modal-schedule-id">
+        <input type="hidden" name="start_time" id="modal-start-time">
+        <input type="hidden" name="end_time" id="modal-end-time">
+        <input type="hidden" name="service_id" id="selected-service-id">
+
+        <!-- Selecionar Barbeiro -->
+        <div class="mb-6">
+          <label for="barber" class="block text-sm font-semibold text-gray-700 mb-2">Escolha o barbeiro</label>
+          <select name="barber_id" id="barber"
+                  class="w-full rounded-xl border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 p-3">
+            @foreach($barbers as $barber)
+              <option value="{{ $barber->id }}">{{ $barber->name }}</option>
+            @endforeach
+          </select>
+        </div>
+
+        <!-- Serviços -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <label class="block text-sm font-semibold text-gray-700">Escolha um serviço</label>
+            <span class="text-xs text-gray-500">1 opção</span>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach($services as $service)
+              <label for="service-radio-{{ $service->id }}"
+                     class="group cursor-pointer rounded-2xl border border-gray-200 hover:border-green-400 hover:shadow-lg transition p-4 flex flex-col items-center text-center">
+<input type="radio" name="service"
+       id="service-radio-{{ $service->id }}"
+       value="{{ $service->id }}"
+       class="sr-only peer service-radio"   {{-- <-- ADICIONADO --}}
+       data-price="{{ $service->price }}"
+       data-duration="{{ $service->duration }}">
+
+                <img src="{{ asset('storage/' . $service->photo) }}" alt="{{ $service->name }}"
+                     class="w-24 h-24 object-cover rounded-full ring-2 ring-transparent peer-checked:ring-green-500 transition">
+                <h4 class="mt-3 font-semibold">{{ $service->name }}</h4>
+                <p class="text-sm text-gray-500">{{ $service->duration }} min</p>
+                <p class="text-green-600 font-bold">R$ {{ number_format($service->price, 2, ',', '.') }}</p>
+              </label>
+            @endforeach
+          </div>
+        </div>
+
+        <!-- Totais -->
+        <div class="mt-auto">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+            <p class="text-sm text-gray-700">
+              <strong>Serviço escolhido:</strong>
+              <span id="chosen-service" class="text-gray-900">nenhum</span>
+            </p>
+            <div class="text-sm">
+              <span class="mr-4"><strong>Duração:</strong> <span id="total-duration">0</span> min</span>
+              <span><strong>Total:</strong> R$ <span id="total-price">0,00</span></span>
+            </div>
+          </div>
+          <p id="time-warning" class="hidden text-red-500 text-sm mb-4">O tempo do serviço selecionado ultrapassa o limite do horário disponível.</p>
+
+          <!-- Ações fixas -->
+          <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
+            <button type="button" onclick="closeModal()"
+                    class="px-5 py-3 rounded-xl bg-gray-100 text-gray-800 hover:bg-gray-200 transition font-semibold">
+              Cancelar
+            </button>
+            <button type="submit" id="confirm-button"
+                    class="px-5 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 transition font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
+              Confirmar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+
+
+<!-- Script RADIO (mantém igual) -->
+<script>
+  (function () {
+    const radios = document.querySelectorAll('.service-radio');
+    const selectedIdInput = document.getElementById('selected-service-id');
+    const chosenLabel = document.getElementById('chosen-service');
+    const totalPriceEl = document.getElementById('total-price');
+    const totalDurationEl = document.getElementById('total-duration');
+    const confirmBtn = document.getElementById('confirm-button');
+    const timeWarning = document.getElementById('time-warning');
+
+    // Limite de minutos do slot (definido quando abre o modal)
+    const slotLimitMinutes = window.slotLimitMinutes ?? null;
+
+    function formatBRL(value) {
+      return (Number(value) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }).replace('R$', '').trim();
+    }
+
+    function updateUIFromSelection(radio) {
+      if (!radio) return;
+
+      const price = parseFloat(radio.dataset.price || '0');
+      const duration = parseInt(radio.dataset.duration || '0', 10);
+      const label = radio.closest('label');
+      const nameEl = label ? label.querySelector('h4') : null;
+      const serviceName = nameEl ? nameEl.textContent.trim() : 'serviço';
+
+      selectedIdInput.value = radio.value;
+      chosenLabel.textContent = serviceName;
+      totalPriceEl.textContent = formatBRL(price);
+      totalDurationEl.textContent = isNaN(duration) ? '0' : duration;
+
+      let validTime = true;
+      if (slotLimitMinutes !== null) validTime = duration <= slotLimitMinutes;
+
+      timeWarning.classList.toggle('hidden', validTime);
+      confirmBtn.disabled = !validTime || !radio.checked;
+    }
+
+    // Exponho só se quiser usar fora (opcional)
+    window.__updateServiceFromRadio = updateUIFromSelection;
+
+    radios.forEach(radio => {
+      radio.addEventListener('change', (e) => updateUIFromSelection(e.target));
+    });
+
+    const preSelected = Array.from(radios).find(r => r.checked);
+    if (preSelected) updateUIFromSelection(preSelected);
+  })();
+
+  // Fechar modal (ok manter)
+  function closeModal() {
+    document.getElementById('reservation-modal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+</script>
+
+
+
+
+<script>
+// 🔁 RESTAURA as funções globais usadas no onclick do botão
+
+window.checkAndOpenModal = function (scheduleId, startTime, endTime) {
+  // Overlay de loading
+  let loadingOverlay = document.createElement("div");
+  loadingOverlay.id = "loading-overlay";
+  loadingOverlay.className = "fixed inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-75 text-white z-50";
+  loadingOverlay.innerHTML = `
+    <div class="flex flex-col items-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-white border-opacity-75"></div>
+      <p class="mt-4 text-xl font-semibold">Verificando disponibilidade...</p>
+    </div>`;
+  document.body.appendChild(loadingOverlay);
+
+  // tempo mínimo visual do loading (opcional)
+  let minLoadingTime = new Promise(resolve => setTimeout(resolve, 5000));
+
+  let checkAvailability = $.ajax({
+    url: "{{ route('schedule.check') }}",
+    type: "POST",
+    data: {
+      schedule_id: scheduleId,
+      _token: "{{ csrf_token() }}"
+    }
+  });
+
+  Promise.all([minLoadingTime, checkAvailability]).then(([_, response]) => {
+    document.getElementById("loading-overlay").remove();
+
+    if (response.status === "available") {
+      window.openModal(scheduleId, startTime, endTime);
+    } else {
+      alert(response.message);
+    }
+  }).catch(() => {
+    document.getElementById("loading-overlay").remove();
+    alert("Erro ao verificar a disponibilidade. Tente novamente.");
+  });
+};
+
+window.openModal = function (scheduleId, startTime, endTime) {
+  // Preenche dados
+  document.getElementById('modal-schedule-id').value = scheduleId;
+  document.getElementById('modal-start-time').value  = startTime;
+  document.getElementById('modal-end-time').value    = endTime;
+
+  // Define limite de minutos para a validação do RADIO
+  window.slotLimitMinutes = (function minutesBetween(s, e) {
+    const [sh, sm] = s.split(':').map(Number);
+    const [eh, em] = e.split(':').map(Number);
+    const start = new Date(); start.setHours(sh, sm, 0, 0);
+    const end   = new Date(); end.setHours(eh, em, 0, 0);
+    return (end - start) / 60000;
+  })(startTime, endTime);
+
+  // Limpa seleção anterior (se quiser)
+  document.querySelectorAll('.service-radio').forEach(r => r.checked = false);
+  const chosen = document.getElementById('chosen-service'); if (chosen) chosen.textContent = 'nenhum';
+  const totalPriceEl = document.getElementById('total-price'); if (totalPriceEl) totalPriceEl.textContent = '0,00';
+  const totalDurationEl = document.getElementById('total-duration'); if (totalDurationEl) totalDurationEl.textContent = '0';
+
+  // Abre modal
+  document.getElementById('reservation-modal').classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+};
+
+window.closeModal = function () {
+  document.getElementById('reservation-modal').classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
+};
+</script>
+
+<!-- Abra o modal definindo o limite de tempo do slot (opcional, ajuda na validação do radio) -->
+<script>
+  function openModal(scheduleId, startTime, endTime) {
+    document.getElementById('modal-schedule-id').value = scheduleId;
+    document.getElementById('modal-start-time').value  = startTime;
+    document.getElementById('modal-end-time').value    = endTime;
+
+    // ✅ Define o limite de minutos pro script do RADIO validar duração
+    window.slotLimitMinutes = (function minutesBetween(s, e) {
+      const [sh, sm] = s.split(':').map(Number);
+      const [eh, em] = e.split(':').map(Number);
+      const start = new Date(); start.setHours(sh, sm, 0, 0);
+      const end   = new Date(); end.setHours(eh, em, 0, 0);
+      return (end - start) / 60000;
+    })(startTime, endTime);
+
+    // (Opcional) Limpa seleção anterior ao abrir
+    document.querySelectorAll('.service-radio').forEach(r => r.checked = false);
+    const chosen = document.getElementById('chosen-service');
+    if (chosen) chosen.textContent = 'nenhum';
+    const totalPriceEl = document.getElementById('total-price');
+    if (totalPriceEl) totalPriceEl.textContent = '0,00';
+    const totalDurationEl = document.getElementById('total-duration');
+    if (totalDurationEl) totalDurationEl.textContent = '0';
+
+    document.getElementById('reservation-modal').classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+</script>
+
+
 
 
 <script>
@@ -280,132 +478,5 @@ $(document).ready(function () {
     loadSchedules();
 });
 </script>
-
-
-
-
-    <script>
-         document.addEventListener('DOMContentLoaded', () => {
-            const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
-            const totalPriceElement = document.getElementById('total-price');
-            const warningMessage = document.getElementById('time-warning');
-            const confirmButton = document.getElementById('confirm-button');
-
-            function calculateTotals() {
-                let totalDuration = 0;
-                let totalPrice = 0;
-                let hasCheckedServices = false;
-
-                serviceCheckboxes.forEach(checkbox => {
-                    if (checkbox.checked) {
-                        hasCheckedServices = true;
-                        totalDuration += parseInt(checkbox.getAttribute('data-duration'));
-                        totalPrice += parseFloat(checkbox.getAttribute('data-price'));
-                    }
-                });
-
-                const startTime = document.getElementById('modal-start-time').value;
-                const endTime = document.getElementById('modal-end-time').value;
-
-                const availableTime = calculateTimeDifference(startTime, endTime);
-
-                // Atualiza o preço total no HTML
-                totalPriceElement.textContent = totalPrice.toFixed(2).replace('.', ',');
-
-                // Verifica se o tempo total excede o limite
-                if (totalDuration > availableTime || !hasCheckedServices) {
-                    warningMessage.classList.remove('hidden');
-                    confirmButton.disabled = true;
-                    confirmButton.classList.remove('bg-green-500', 'hover:bg-green-600');
-                    confirmButton.classList.add('bg-gray-400', 'cursor-not-allowed');
-                } else {
-                    warningMessage.classList.add('hidden');
-                    confirmButton.disabled = false;
-                    confirmButton.classList.add('bg-green-500', 'hover:bg-green-600');
-                    confirmButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                }
-            }
-
-            function calculateTimeDifference(startTime, endTime) {
-                const [startHour, startMinute] = startTime.split(':').map(Number);
-                const [endHour, endMinute] = endTime.split(':').map(Number);
-
-                const start = new Date();
-                start.setHours(startHour, startMinute);
-
-                const end = new Date();
-                end.setHours(endHour, endMinute);
-
-                return (end - start) / 60000; // Diferença em minutos
-            }
-
-            serviceCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', calculateTotals);
-            });
-        });
-
-        function checkAndOpenModal(scheduleId, startTime, endTime) {
-    // Cria o overlay de carregamento
-    let loadingOverlay = document.createElement("div");
-    loadingOverlay.id = "loading-overlay";
-    loadingOverlay.className = "fixed inset-0 flex flex-col items-center justify-center bg-gray-900 bg-opacity-75 text-white z-50";
-    
-    loadingOverlay.innerHTML = `
-        <div class="flex flex-col items-center">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-white border-opacity-75"></div>
-            <p class="mt-4 text-xl font-semibold">Verificando disponibilidade...</p>
-        </div>
-    `;
-    
-    document.body.appendChild(loadingOverlay);
-
-    // Garante que o loading fique na tela por pelo menos 5 segundos
-    let minLoadingTime = new Promise(resolve => setTimeout(resolve, 5000));
-
-    let checkAvailability = $.ajax({
-        url: "{{ route('schedule.check') }}",
-        type: "POST",
-        data: {
-            schedule_id: scheduleId,
-            _token: "{{ csrf_token() }}"
-        }
-    });
-
-    // Espera pelo menos 5 segundos antes de remover o loading
-    Promise.all([minLoadingTime, checkAvailability]).then(([_, response]) => {
-        document.getElementById("loading-overlay").remove(); // Remove o loading
-
-        if (response.status === "available") {
-            openModal(scheduleId, startTime, endTime);
-        } else {
-            alert(response.message);
-        }
-    }).catch(() => {
-        document.getElementById("loading-overlay").remove();
-        alert("Erro ao verificar a disponibilidade. Tente novamente.");
-    });
-}
-
-
-function openModal(scheduleId, startTime, endTime) {
-    document.getElementById('modal-schedule-id').value = scheduleId;
-    document.getElementById('modal-start-time').value = startTime;
-    document.getElementById('modal-end-time').value = endTime;
-    document.getElementById('reservation-modal').classList.remove('hidden');
-}
-
-function closeModal() {
-    document.getElementById('reservation-modal').classList.add('hidden');
-}
-
-
-        function openLoginModal() {
-            document.getElementById('login-modal').classList.remove('hidden');
-        }
-
-        function closeLoginModal() {
-            document.getElementById('login-modal').classList.add('hidden');
-        }
-    </script>
 
 </x-layouts.client>

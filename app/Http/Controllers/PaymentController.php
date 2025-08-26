@@ -53,38 +53,75 @@ class PaymentController extends Controller
 
     /**
      * Cria a preferência e redireciona para o Mercado Pago
+     * Aceita tanto:
+     *  - Radio (1 serviço):  service_id
+     *  - Checkboxes (n serviços): services[]
      */
     public function showPaymentPage(Request $request)
     {
-        $schedule = Schedule::findOrFail($request->schedule_id);
-        $user     = Auth::user();
-        $barber   = User::findOrFail($request->barber_id);
-        $services = Service::find($request->services);
+        // Validação básica
+        $validated = $request->validate([
+            'schedule_id' => ['required', 'integer', 'exists:schedules,id'],
+            'barber_id'   => ['required', 'integer', 'exists:users,id'],
+            // service_id OU services[] (pelo menos um deles)
+            'service_id'  => ['nullable', 'integer', 'exists:services,id'],
+            'services'    => ['nullable', 'array'],
+            'services.*'  => ['integer', 'exists:services,id'],
+        ]);
 
+        // Entidades principais
+        $schedule = Schedule::findOrFail($validated['schedule_id']);
+        $user     = Auth::user();
+        $barber   = User::findOrFail($validated['barber_id']);
+
+        // Compat: radio (service_id) OU checkboxes (services[])
+        $serviceIds = $request->input('services', []);
+        if (empty($serviceIds) && $request->filled('service_id')) {
+            $serviceIds = [(int) $request->input('service_id')];
+        }
+
+        // Garantia de array de inteiros e sem duplicatas
+        $serviceIds = array_values(array_unique(array_map('intval', (array) $serviceIds)));
+
+        if (empty($serviceIds)) {
+            return back()->with('error', 'Selecione ao menos um serviço.')->withInput();
+        }
+
+        // Busca serviços
+        $services = Service::whereIn('id', $serviceIds)->get();
+
+        if ($services->isEmpty()) {
+            return back()->with('error', 'Serviços não encontrados.')->withInput();
+        }
+
+        // Totais
         $serviceIds = $services->pluck('id')->toArray();
-        $total      = $services->sum('price');
+        $total      = (float) $services->sum('price');
 
         Log::info('🛒 Iniciando fluxo de pagamento', [
             'schedule_id' => $schedule->id,
-            'user_id'     => $user->id,
+            'user_id'     => optional($user)->id,
             'barber_id'   => $barber->id,
             'services'    => $serviceIds,
             'total'       => $total
         ]);
 
+        // Mercado Pago
         MercadoPagoConfig::setAccessToken(env('MERCADOPAGO_ACCESS_TOKEN'));
         $client = new PreferenceClient();
 
         try {
+            $items = $services->map(function (Service $service) {
+                return [
+                    "title"       => $service->name,
+                    "quantity"    => 1,
+                    "unit_price"  => (float) $service->price,
+                    "currency_id" => "BRL",
+                ];
+            })->toArray();
+
             $preference = $client->create([
-                "items" => $services->map(function ($service) {
-                    return [
-                        "title"       => $service->name,
-                        "quantity"    => 1,
-                        "unit_price"  => (float) $service->price,
-                        "currency_id" => "BRL",
-                    ];
-                })->toArray(),
+                "items" => $items,
                 "back_urls" => [
                     "success" => route('payment.success'),
                     "failure" => route('payment.failure'),
@@ -92,33 +129,37 @@ class PaymentController extends Controller
                 ],
                 "auto_return" => "approved",
                 "external_reference" =>
-                    "reserva_{$schedule->id}_user_{$user->id}_barber_{$barber->id}_services_" .
+                    "reserva_{$schedule->id}_user_" . optional($user)->id . "_barber_{$barber->id}_services_" .
                     implode('-', $serviceIds) . "_total_{$total}",
                 "metadata" => [
                     "schedule_id" => $schedule->id,
-                    "customer_id" => $user->id,
+                    "customer_id" => optional($user)->id,
                     "barber_id"   => $barber->id,
                     "service_ids" => $serviceIds,
                     "total_amount"=> $total,
                 ]
             ]);
 
-$metadata = property_exists($preference, 'metadata') && isset($preference->metadata)
-    ? (array) $preference->metadata
-    : [];
+            $metadata = property_exists($preference, 'metadata') && isset($preference->metadata)
+                ? (array) $preference->metadata
+                : [];
 
-Log::info('📤 Preferência criada no Mercado Pago', [
-    'preference_id'      => $preference->id ?? null,
-    'init_point'         => $preference->init_point ?? null,
-    'external_reference' => $preference->external_reference ?? null,
-    'metadata'           => $metadata
-]);
+            Log::info('📤 Preferência criada no Mercado Pago', [
+                'preference_id'      => $preference->id ?? null,
+                'init_point'         => $preference->init_point ?? null,
+                'external_reference' => $preference->external_reference ?? null,
+                'metadata'           => $metadata
+            ]);
 
-
+            // Redireciona para o checkout
             return redirect($preference->init_point);
 
         } catch (MPApiException $e) {
+            Log::error('❌ Erro ao criar preferência no Mercado Pago', ['error' => $e->getMessage()]);
             return back()->with('error', 'Erro ao criar pagamento: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('❌ Erro inesperado ao criar pagamento', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Erro inesperado ao criar pagamento. Tente novamente.');
         }
     }
 
@@ -129,7 +170,8 @@ Log::info('📤 Preferência criada no Mercado Pago', [
             'raw_get' => $_GET
         ]);
 
-        return view('client.payment_success')->with('message', 'Pagamento aprovado! Estamos confirmando sua reserva...');
+        return view('client.payment_success')
+            ->with('message', 'Pagamento aprovado! Estamos confirmando sua reserva...');
     }
 
     public function failure()
@@ -159,7 +201,7 @@ Log::info('📤 Preferência criada no Mercado Pago', [
         $serviceIds  = $metadata['service_ids'] ?? [];
         $totalAmount = $metadata['total_amount'] ?? ($payment->transaction_amount ?? null);
 
-        // fallback pelo external_reference
+        // Fallback pelo external_reference
         if (!$scheduleId || !$customerId) {
             $ext = $payment->external_reference ?? '';
             if (preg_match('/^reserva_(\d+)_user_(\d+)_barber_(\d+)_services_([0-9\-]+)_total_([0-9\.]+)$/', $ext, $m)) {
