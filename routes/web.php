@@ -24,6 +24,8 @@ use App\Http\Controllers\FixedScheduleController;
 use App\Http\Controllers\DeleteScheduleController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
+Route::post('/webhook/mercadopago', [PaymentController::class, 'handleWebhook']);
+
 Route::post('/payment/checkout', [PaymentController::class, 'showPaymentPage'])->name('client.payment.showPaymentPage');
 
 

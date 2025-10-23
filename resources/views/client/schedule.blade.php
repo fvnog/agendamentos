@@ -28,10 +28,10 @@
 </div>
 
 <!-- Seção de Serviços -->
-<section id="services" class="mt-6 bg-white p-8 rounded-lg shadow-lg w-full max-w-6xl mx-auto">
+<section id="services" class="mt-6 bg-white p-8 rounded-lg shadow-lg w-full mx-auto">
     <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">💈 Nossos Serviços</h2>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 gap-6">
         @foreach($services as $service)
             <div class="bg-gray-100 p-5 rounded-lg shadow-md text-center flex flex-col items-center">
                 @if($service->photo)
@@ -49,7 +49,7 @@
 </section>
 
 <!-- Seção de Agendamento -->
-<section id="schedule" class="mt-16 bg-white p-8 rounded-lg shadow-lg w-full max-w-6xl mx-auto">
+<section id="schedule" class="mt-16 bg-white p-8 rounded-lg shadow-lg w-full mx-auto">
     <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">📅 Agende seu Horário</h2>
 
     <!-- Filtros -->
