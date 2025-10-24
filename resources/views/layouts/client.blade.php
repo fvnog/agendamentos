@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
-<body class="bg-black bg-center bg-no-repeat"
-    style="background-image: url('{{ asset('storage/img/bg.png') }}'); background-size: contain;">
+<body class="bg-black bg-center bg-repeat"
+    style="background-image: url('{{ asset('storage/img/bg.png') }}'); background-size: auto;">
 
     <!-- Navbar -->
     <nav class="bg-gray-900 shadow-md py-4 fixed top-0 w-full z-50">
