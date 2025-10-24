@@ -1,7 +1,6 @@
 <x-layouts.client>
 
-  <div class="relative flex flex-col items-center justify-center bg-cover bg-center px-6 sm:px-6"
-    style="background-image: url('{{ asset('storage/img/bg.png') }}');">
+  <div class="relative flex flex-col items-center justify-center bg-cover bg-center px-6 sm:px-6">
 
     <!-- Logo -->
     <img src="{{ asset('storage/img/gs2.png') }}" alt="GS Barbearia"
@@ -215,7 +214,8 @@
                     </div>
 
                     <h4 class="mt-3 font-semibold text-gray-800 peer-checked:text-green-700 transition">
-                      {{ $service->name }}</h4>
+                      {{ $service->name }}
+                    </h4>
                     <p class="text-sm text-gray-500">{{ $service->duration }} min</p>
                     <p class="text-green-600 font-bold">R$ {{ number_format($service->price, 2, ',', '.') }}</p>
                   </div>
