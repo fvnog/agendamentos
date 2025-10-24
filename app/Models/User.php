@@ -17,6 +17,7 @@ class User extends Authenticatable
         'password',
         'is_admin', // Incluindo is_admin no $fillable
         'telefone',
+        'image',
     ];
 
     protected $hidden = [
